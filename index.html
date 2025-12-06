@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Simulador Ensamblaje de PC</title>
+  <title>Simulador Ensamblaje de PC (Iconos)</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -17,7 +17,7 @@
     }
 
     #contenedor {
-      max-width: 1100px;
+      max-width: 1000px;
       margin: 20px auto;
       display: flex;
       gap: 20px;
@@ -25,11 +25,11 @@
     }
 
     #componentes, #pc {
-      flex: 1 1 480px;
+      flex: 1 1 450px;
       background: #ffffff;
       padding: 15px;
       border-radius: 10px;
-      min-height: 420px;
+      min-height: 360px;
       border: 2px dashed #aaa;
       box-sizing: border-box;
     }
@@ -42,33 +42,26 @@
     /* Componentes (izquierda) */
     .pieza {
       padding: 10px;
-      margin: 10px 0;
+      margin: 8px 0;
       background: #dff0ff;
       border: 1px solid #999;
       border-radius: 5px;
       cursor: grab;
-      text-align: center;
-      display: inline-block;
-      width: 48%;
+      text-align: left;
+      display: block;
       box-sizing: border-box;
-      vertical-align: top;
-      transition: transform 0.15s;
+      transition: transform 0.15s, background 0.15s;
+      user-select: none;
+    }
+
+    .pieza strong {
+      margin-right: 6px;
+      font-size: 1.1rem;
     }
 
     .pieza:hover {
-      transform: scale(1.03);
-    }
-
-    .pieza img {
-      max-width: 80px;
-      display: block;
-      margin: 0 auto 5px;
-    }
-
-    .pieza span {
-      display: block;
-      font-size: 0.9rem;
-      font-weight: bold;
+      transform: scale(1.02);
+      background: #cfe7ff;
     }
 
     .pieza-desactivada {
@@ -77,21 +70,8 @@
     }
 
     /* Zona del PC (derecha) */
-    #pc-inner {
-      position: relative;
-      padding-top: 10px;
-    }
-
-    #pc-fondo {
-      width: 100%;
-      max-width: 380px;
-      display: block;
-      margin: 0 auto 10px;
-      opacity: 0.9;
-    }
-
     .slot {
-      width: 90%;
+      width: 100%;
       padding: 8px;
       margin: 8px auto;
       background: #eee;
@@ -100,6 +80,8 @@
       text-align: center;
       font-size: 0.9rem;
       transition: background 0.2s, border-color 0.2s, transform 0.1s;
+      min-height: 45px;
+      box-sizing: border-box;
     }
 
     .slot.activo {
@@ -148,7 +130,7 @@
     /* Barra de progreso */
     #progreso-contenedor {
       margin: 10px auto 0;
-      width: 90%;
+      width: 100%;
     }
 
     #progreso-texto {
@@ -159,7 +141,7 @@
 
     #progreso-barra {
       width: 100%;
-      height: 12px;
+      height: 10px;
       background: #ddd;
       border-radius: 999px;
       overflow: hidden;
@@ -180,8 +162,8 @@
     }
 
     @media (max-width: 900px) {
-      .pieza {
-        width: 100%;
+      #contenedor {
+        flex-direction: column;
       }
     }
   </style>
@@ -189,7 +171,7 @@
 
 <body>
   <h1>Simulador Interactivo: Ensambla tu PC</h1>
-  <h2>Arrastra cada componente a su lugar correcto</h2>
+  <h2>Arrastra cada componente al lugar correcto</h2>
 
   <div id="contenedor">
 
@@ -197,62 +179,28 @@
     <div id="componentes">
       <h3>Componentes disponibles</h3>
 
-      <!-- Todas las imágenes son SVG incrustados como data URI -->
-
       <div class="pieza" draggable="true" id="cpu"
            data-info="La CPU es el 'cerebro' de la computadora. Se inserta en el zócalo de la placa base.">
-        <img
-          alt="CPU"
-          src="data:image/svg+xml;utf8,
-          <svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'>
-            <rect width='80' height='80' fill='%23e0e0e0'/>
-            <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'
-                  font-size='18' font-family='Arial'>CPU</text>
-          </svg>">
-        <span>CPU (Procesador)</span>
+        <strong>🧠 CPU</strong> Procesador
       </div>
 
       <div class="pieza" draggable="true" id="ram"
            data-info="La memoria RAM almacena datos de uso inmediato. Va en las ranuras DIMM de la placa base.">
-        <img
-          alt="RAM"
-          src="data:image/svg+xml;utf8,
-          <svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'>
-            <rect width='80' height='80' fill='%23c8e6c9'/>
-            <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'
-                  font-size='18' font-family='Arial'>RAM</text>
-          </svg>">
-        <span>Memoria RAM</span>
+        <strong>💾 RAM</strong> Memoria principal
       </div>
 
       <div class="pieza" draggable="true" id="gpu"
            data-info="La tarjeta gráfica (GPU) procesa los gráficos y se coloca en la ranura PCI Express.">
-        <img
-          alt="GPU"
-          src="data:image/svg+xml;utf8,
-          <svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'>
-            <rect width='80' height='80' fill='%23bbdefb'/>
-            <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'
-                  font-size='18' font-family='Arial'>GPU</text>
-          </svg>">
-        <span>Tarjeta Gráfica (GPU)</span>
+        <strong>🎮 GPU</strong> Tarjeta gráfica
       </div>
 
       <div class="pieza" draggable="true" id="psu"
            data-info="La fuente de poder suministra energía a todos los componentes del PC.">
-        <img
-          alt="PSU"
-          src="data:image/svg+xml;utf8,
-          <svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'>
-            <rect width='80' height='80' fill='%23ffe082'/>
-            <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'
-                  font-size='18' font-family='Arial'>PSU</text>
-          </svg>">
-        <span>Fuente de Poder (PSU)</span>
+        <strong>🔌 PSU</strong> Fuente de poder
       </div>
 
       <p class="tooltip">
-        👉 Haz clic en cada componente para ver una breve descripción.
+        👉 Haz clic en cada componente para ver qué hace.
       </p>
     </div>
 
@@ -261,26 +209,11 @@
       <h3>Zona de ensamblaje del PC</h3>
 
       <div id="pc-inner">
-        <!-- Fondo del PC como SVG incrustado -->
-        <img
-          id="pc-fondo"
-          alt="Placa base de PC"
-          src="data:image/svg+xml;utf8,
-          <svg xmlns='http://www.w3.org/2000/svg' width='380' height='260'>
-            <rect width='380' height='260' fill='%23212121'/>
-            <rect x='20' y='20' width='220' height='150' fill='%233a3a3a'/>
-            <rect x='260' y='30' width='90' height='60' fill='%234f4f4f'/>
-            <rect x='260' y='110' width='90' height='60' fill='%234f4f4f'/>
-            <text x='50%' y='95%' fill='white' text-anchor='middle'
-                  font-family='Arial' font-size='18'>Placa base</text>
-          </svg>">
-
         <div class="slot" data-accept="cpu">Coloca aquí la CPU (zócalo del procesador)</div>
         <div class="slot" data-accept="ram">Coloca aquí la RAM (ranuras DIMM)</div>
         <div class="slot" data-accept="gpu">Coloca aquí la GPU (ranura PCIe)</div>
         <div class="slot" data-accept="psu">Coloca aquí la Fuente de Poder</div>
 
-        <!-- Barra de progreso -->
         <div id="progreso-contenedor">
           <div id="progreso-texto">Progreso: 0 / 4 componentes instalados</div>
           <div id="progreso-barra">
@@ -299,7 +232,6 @@
   </div>
 
   <script>
-    // --- LÓGICA DE DRAG & DROP ---
     let piezaArrastrada = null;
 
     const piezas = document.querySelectorAll(".pieza");
@@ -319,11 +251,10 @@
       actualizarProgreso();
 
       piezas.forEach(p => {
-        p.style.display = "inline-block";
+        p.style.display = "block";
         p.classList.remove("pieza-desactivada");
         p.setAttribute("draggable", "true");
 
-        p.onmousedown = null;
         p.onclick = () => {
           const info = p.dataset.info || "Componente de hardware para PC.";
           alert(info);
@@ -370,7 +301,7 @@
     }
 
     function onDragOver(e) {
-      e.preventDefault(); // necesario para permitir drop
+      e.preventDefault();
     }
 
     function onDragEnter(e) {
@@ -401,7 +332,6 @@
         slot.innerHTML = "";
         slot.appendChild(pieza);
 
-        pieza.style.display = "block";
         pieza.classList.add("pieza-desactivada");
         pieza.setAttribute("draggable", "false");
 
@@ -435,7 +365,6 @@
       }
     }
 
-    // Botón de reinicio
     botonReset.addEventListener("click", () => {
       piezas.forEach(p => {
         contenedorComponentes.appendChild(p);
@@ -443,7 +372,6 @@
       initDragAndDrop();
     });
 
-    // Botón de ayuda
     botonAyuda.addEventListener("click", () => {
       alert(
         "Guía rápida de ensamblaje:\n\n" +
@@ -454,7 +382,6 @@
       );
     });
 
-    // Iniciar
     initDragAndDrop();
   </script>
 </body>
