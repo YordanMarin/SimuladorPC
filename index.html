@@ -1,388 +1,222 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Simulador Ensamblaje de PC (Iconos)</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      margin: 0;
-      padding: 20px;
-    }
-
-    h1, h2 {
-      text-align: center;
-      margin: 5px 0;
-    }
-
-    #contenedor {
-      max-width: 1000px;
-      margin: 20px auto;
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-
-    #componentes, #pc {
-      flex: 1 1 450px;
-      background: #ffffff;
-      padding: 15px;
-      border-radius: 10px;
-      min-height: 360px;
-      border: 2px dashed #aaa;
-      box-sizing: border-box;
-    }
-
-    #componentes h3, #pc h3 {
-      margin-top: 0;
-      text-align: center;
-    }
-
-    /* Componentes (izquierda) */
-    .pieza {
-      padding: 10px;
-      margin: 8px 0;
-      background: #dff0ff;
-      border: 1px solid #999;
-      border-radius: 5px;
-      cursor: grab;
-      text-align: left;
-      display: block;
-      box-sizing: border-box;
-      transition: transform 0.15s, background 0.15s;
-      user-select: none;
-    }
-
-    .pieza strong {
-      margin-right: 6px;
-      font-size: 1.1rem;
-    }
-
-    .pieza:hover {
-      transform: scale(1.02);
-      background: #cfe7ff;
-    }
-
-    .pieza-desactivada {
-      cursor: default;
-      opacity: 0.7;
-    }
-
-    /* Zona del PC (derecha) */
-    .slot {
-      width: 100%;
-      padding: 8px;
-      margin: 8px auto;
-      background: #eee;
-      border: 2px dashed #bbb;
-      border-radius: 5px;
-      text-align: center;
-      font-size: 0.9rem;
-      transition: background 0.2s, border-color 0.2s, transform 0.1s;
-      min-height: 45px;
-      box-sizing: border-box;
-    }
-
-    .slot.activo {
-      background: #e0f7fa;
-      border-color: #00acc1;
-      transform: scale(1.01);
-    }
-
-    .slot.correcto {
-      background: #c8ffc8;
-      border-color: #2e7d32;
-    }
-
-    #mensaje-final {
-      text-align: center;
-      font-weight: bold;
-      margin-top: 10px;
-      color: #2e7d32;
-      min-height: 1.4em;
-    }
-
-    #botones {
-      text-align: center;
-      margin-top: 10px;
-    }
-
-    #botones button {
-      padding: 8px 16px;
-      margin: 0 5px;
-      border-radius: 5px;
-      border: none;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-
-    #boton-reset {
-      background: #e53935;
-      color: white;
-    }
-
-    #boton-ayuda {
-      background: #1976d2;
-      color: white;
-    }
-
-    /* Barra de progreso */
-    #progreso-contenedor {
-      margin: 10px auto 0;
-      width: 100%;
-    }
-
-    #progreso-texto {
-      font-size: 0.85rem;
-      text-align: center;
-      margin-bottom: 4px;
-    }
-
-    #progreso-barra {
-      width: 100%;
-      height: 10px;
-      background: #ddd;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    #progreso-interno {
-      height: 100%;
-      width: 0%;
-      background: #43a047;
-      transition: width 0.25s;
-    }
-
-    .tooltip {
-      font-size: 0.8rem;
-      text-align: center;
-      color: #555;
-      margin-top: 6px;
-    }
-
-    @media (max-width: 900px) {
-      #contenedor {
-        flex-direction: column;
-      }
-    }
-  </style>
-</head>
-
-<body>
-  <h1>Simulador Interactivo: Ensambla tu PC</h1>
-  <h2>Arrastra cada componente al lugar correcto</h2>
-
-  <div id="contenedor">
-
-    <!-- PANEL IZQUIERDO: COMPONENTES -->
-    <div id="componentes">
-      <h3>Componentes disponibles</h3>
-
-      <div class="pieza" draggable="true" id="cpu"
-           data-info="La CPU es el 'cerebro' de la computadora. Se inserta en el zócalo de la placa base.">
-        <strong>🧠 CPU</strong> Procesador
-      </div>
-
-      <div class="pieza" draggable="true" id="ram"
-           data-info="La memoria RAM almacena datos de uso inmediato. Va en las ranuras DIMM de la placa base.">
-        <strong>💾 RAM</strong> Memoria principal
-      </div>
-
-      <div class="pieza" draggable="true" id="gpu"
-           data-info="La tarjeta gráfica (GPU) procesa los gráficos y se coloca en la ranura PCI Express.">
-        <strong>🎮 GPU</strong> Tarjeta gráfica
-      </div>
-
-      <div class="pieza" draggable="true" id="psu"
-           data-info="La fuente de poder suministra energía a todos los componentes del PC.">
-        <strong>🔌 PSU</strong> Fuente de poder
-      </div>
-
-      <p class="tooltip">
-        👉 Haz clic en cada componente para ver qué hace.
-      </p>
-    </div>
-
-    <!-- PANEL DERECHO: ZONA DE ENSAMBLAJE -->
-    <div id="pc">
-      <h3>Zona de ensamblaje del PC</h3>
-
-      <div id="pc-inner">
-        <div class="slot" data-accept="cpu">Coloca aquí la CPU (zócalo del procesador)</div>
-        <div class="slot" data-accept="ram">Coloca aquí la RAM (ranuras DIMM)</div>
-        <div class="slot" data-accept="gpu">Coloca aquí la GPU (ranura PCIe)</div>
-        <div class="slot" data-accept="psu">Coloca aquí la Fuente de Poder</div>
-
-        <div id="progreso-contenedor">
-          <div id="progreso-texto">Progreso: 0 / 4 componentes instalados</div>
-          <div id="progreso-barra">
-            <div id="progreso-interno"></div>
-          </div>
-        </div>
-      </div>
-
-      <div id="mensaje-final"></div>
-
-      <div id="botones">
-        <button id="boton-reset">Reiniciar</button>
-        <button id="boton-ayuda">¿Cómo ensamblar?</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    let piezaArrastrada = null;
-
-    const piezas = document.querySelectorAll(".pieza");
-    const slots = document.querySelectorAll(".slot");
-    const mensajeFinal = document.getElementById("mensaje-final");
-    const botonReset = document.getElementById("boton-reset");
-    const botonAyuda = document.getElementById("boton-ayuda");
-    const contenedorComponentes = document.getElementById("componentes");
-    const progresoTexto = document.getElementById("progreso-texto");
-    const progresoInterno = document.getElementById("progreso-interno");
-
-    const TOTAL_COMPONENTES = slots.length;
-
-    function initDragAndDrop() {
-      piezaArrastrada = null;
-      mensajeFinal.textContent = "";
-      actualizarProgreso();
-
-      piezas.forEach(p => {
-        p.style.display = "block";
-        p.classList.remove("pieza-desactivada");
-        p.setAttribute("draggable", "true");
-
-        p.onclick = () => {
-          const info = p.dataset.info || "Componente de hardware para PC.";
-          alert(info);
-        };
-
-        p.addEventListener("dragstart", onDragStart);
-        p.addEventListener("dragend", onDragEnd);
-      });
-
-      slots.forEach(s => {
-        s.classList.remove("correcto");
-        s.classList.remove("activo");
-        s.innerHTML = textoSlotOriginal(s.dataset.accept);
-
-        s.addEventListener("dragover", onDragOver);
-        s.addEventListener("dragenter", onDragEnter);
-        s.addEventListener("dragleave", onDragLeave);
-        s.addEventListener("drop", onDrop);
-      });
-    }
-
-    function textoSlotOriginal(id) {
-      switch (id) {
-        case "cpu":
-          return "Coloca aquí la CPU (zócalo del procesador)";
-        case "ram":
-          return "Coloca aquí la RAM (ranuras DIMM)";
-        case "gpu":
-          return "Coloca aquí la GPU (ranura PCIe)";
-        case "psu":
-          return "Coloca aquí la Fuente de Poder";
-        default:
-          return "Coloca aquí el componente correcto";
-      }
-    }
-
-    function onDragStart(e) {
-      piezaArrastrada = e.currentTarget;
-      e.dataTransfer.setData("text/plain", piezaArrastrada.id);
-    }
-
-    function onDragEnd() {
-      piezaArrastrada = null;
-    }
-
-    function onDragOver(e) {
-      e.preventDefault();
-    }
-
-    function onDragEnter(e) {
-      e.preventDefault();
-      e.currentTarget.classList.add("activo");
-    }
-
-    function onDragLeave(e) {
-      e.currentTarget.classList.remove("activo");
-    }
-
-    function onDrop(e) {
-      e.preventDefault();
-      const slot = e.currentTarget;
-      slot.classList.remove("activo");
-
-      const piezaId = e.dataTransfer.getData("text/plain");
-      const pieza = document.getElementById(piezaId);
-      if (!pieza) return;
-
-      if (slot.dataset.accept === pieza.id) {
-        if (slot.querySelector(".pieza")) {
-          alert("⚠ Ya hay un componente colocado aquí.");
-          return;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Ensamblaje PC Básico</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        h2 { color: #333; }
+        #status-message {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #e2e8f0;
+            border-radius: 5px;
+            font-weight: bold;
+            color: #2d3748;
         }
 
-        slot.classList.add("correcto");
-        slot.innerHTML = "";
-        slot.appendChild(pieza);
+        .container {
+            display: flex;
+            gap: 30px;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
 
-        pieza.classList.add("pieza-desactivada");
-        pieza.setAttribute("draggable", "false");
+        /* Estilos de la zona de componentes (Izquierda) */
+        .parts-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .component {
+            width: 120px;
+            height: 60px;
+            background-color: #4299e1;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            cursor: grab;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+        }
+        .component:active { transform: scale(0.98); cursor: grabbing; }
+        /* Colores distintos para cada componente */
+        #comp-placa { background-color: #dd6b20; } /* Naranja */
+        #comp-cpu { background-color: #3182ce; } /* Azul */
+        #comp-ram { background-color: #38a169; } /* Verde */
+        #comp-gpu { background-color: #805ad5; } /* Morado */
+        #comp-fuente { background-color: #718096; } /* Gris */
 
-        actualizarProgreso();
-        verificarEnsamblaje();
-      } else {
-        alert("❌ Ese componente no corresponde a esta posición.");
-      }
-    }
+        /* Estilos de la zona de ensamblaje (Derecha) */
+        .build-zone {
+            width: 400px;
+            height: 500px;
+            background-color: #2d3748; /* Color gabinete oscuro */
+            border: 3px dashed #cbd5e0;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            color: #a0aec0;
+        }
+        .build-zone.drag-over {
+            border-color: #48bb78;
+            background-color: #2f3e52;
+        }
 
-    function contarComponentesCorrectos() {
-      let completos = 0;
-      slots.forEach(s => {
-        if (s.querySelector(".pieza")) completos++;
-      });
-      return completos;
-    }
+        /* Clase para componentes ya instalados */
+        .installed {
+            position: absolute;
+            cursor: default;
+            box-shadow: none;
+            opacity: 0.9;
+        }
+        /* Posiciones simuladas dentro del gabinete */
+        #installed-placa { width: 90%; height: 80%; z-index: 1; background-color: #c05621; top: 10%; }
+        #installed-cpu { width: 60px; height: 60px; z-index: 2; top: 30%; }
+        #installed-ram { width: 100px; height: 30px; z-index: 2; top: 20%; left: 55%; }
+        #installed-gpu { width: 70%; height: 40px; z-index: 3; bottom: 25%; }
+        #installed-fuente { width: 120px; height: 80px; z-index: 3; bottom: 5%; right: 5%; background-color: #4a5568; }
 
-    function actualizarProgreso() {
-      const completos = contarComponentesCorrectos();
-      progresoTexto.textContent =
-        "Progreso: " + completos + " / " + TOTAL_COMPONENTES + " componentes instalados";
-      const porcentaje = (completos / TOTAL_COMPONENTES) * 100;
-      progresoInterno.style.width = porcentaje + "%";
-    }
+    </style>
+</head>
+<body>
 
-    function verificarEnsamblaje() {
-      const completos = contarComponentesCorrectos();
-      if (completos === TOTAL_COMPONENTES) {
-        mensajeFinal.textContent = "🎉 ¡Felicitaciones! Has ensamblado correctamente la PC.";
-      }
-    }
+    <h2>Simulador de Ensamblaje Web</h2>
+    <div id="status-message">Instrucción: Comienza arrastrando la Placa Base al gabinete.</div>
 
-    botonReset.addEventListener("click", () => {
-      piezas.forEach(p => {
-        contenedorComponentes.appendChild(p);
-      });
-      initDragAndDrop();
-    });
+    <div class="container">
+        <div class="parts-panel" id="parts-list">
+            <div class="component" draggable="true" id="comp-fuente">Fuente de Poder</div>
+            <div class="component" draggable="true" id="comp-gpu">Tarjeta Gráfica</div>
+            <div class="component" draggable="true" id="comp-cpu">Procesador (CPU)</div>
+            <div class="component" draggable="true" id="comp-placa">Placa Base</div>
+            <div class="component" draggable="true" id="comp-ram">Memoria RAM</div>
+        </div>
 
-    botonAyuda.addEventListener("click", () => {
-      alert(
-        "Guía rápida de ensamblaje:\n\n" +
-        "1️⃣ CPU: se instala en el zócalo de la placa base.\n" +
-        "2️⃣ RAM: se coloca en las ranuras DIMM.\n" +
-        "3️⃣ GPU: se inserta en la ranura PCI Express.\n" +
-        "4️⃣ PSU: la fuente de poder alimenta todos los componentes."
-      );
-    });
+        <div class="build-zone" id="case-dropzone">
+            <p>Arrastra los componentes aquí</p>
+        </div>
+    </div>
 
-    initDragAndDrop();
-  </script>
+
+    <script>
+        // --- Lógica del Simulador ---
+
+        // Definimos el orden CORRECTO de ensamblaje por sus IDs
+        const assemblyOrder = ['comp-placa', 'comp-cpu', 'comp-ram', 'comp-gpu', 'comp-fuente'];
+        let currentStep = 0; // Empezamos en el paso 0
+
+        const parts = document.querySelectorAll('.component');
+        const dropZone = document.getElementById('case-dropzone');
+        const statusMsg = document.getElementById('status-message');
+
+        // Configurar elementos arrastrables (Las piezas)
+        parts.forEach(part => {
+            part.addEventListener('dragstart', dragStart);
+        });
+
+        // Configurar zona de destino (El gabinete)
+        dropZone.addEventListener('dragover', dragOver);
+        dropZone.addEventListener('dragleave', dragLeave);
+        dropZone.addEventListener('drop', dropEvent);
+
+        // Funciones de eventos
+        function dragStart(e) {
+            // Guardamos el ID del elemento que estamos arrastrando
+            e.dataTransfer.setData('text/plain', e.target.id);
+            setTimeout(() => {
+                e.target.style.opacity = '0.5';
+            }, 0);
+        }
+
+        function dragOver(e) {
+            e.preventDefault(); // Necesario para permitir soltar
+            dropZone.classList.add('drag-over');
+        }
+
+        function dragLeave(e) {
+            dropZone.classList.remove('drag-over');
+        }
+
+        function dropEvent(e) {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+
+            // Obtenemos el ID del elemento soltado
+            const draggedItemId = e.dataTransfer.getData('text');
+            const draggedElement = document.getElementById(draggedItemId);
+
+            // --- VALIDACIÓN DE LÓGICA ---
+            // Verificamos si la pieza soltada es la correcta para este paso
+            if (draggedItemId === assemblyOrder[currentStep]) {
+                // ¡Correcto!
+                installComponent(draggedElement);
+            } else {
+                // ¡Incorrecto!
+                showError(draggedItemId);
+                draggedElement.style.opacity = '1'; // Restaurar opacidad
+            }
+        }
+
+        function installComponent(element) {
+            // 1. Clones el elemento para ponerlo en el gabinete
+            const installedComponent = element.cloneNode(true);
+            installedComponent.classList.add('installed');
+            installedComponent.setAttribute('draggable', 'false'); // Ya no se puede mover
+            // Cambiamos ID para estilos de posicionamiento
+            installedComponent.id = 'installed-' + element.id.replace('comp-', '');
+
+            // 2. Lo añadimos al gabinete
+            dropZone.appendChild(installedComponent);
+
+            // 3. Eliminamos el original de la lista de piezas
+            element.remove();
+
+            // 4. Actualizamos el estado
+            currentStep++;
+            updateStatus();
+        }
+
+        function updateStatus() {
+            const nextPartId = assemblyOrder[currentStep];
+
+            if (currentStep >= assemblyOrder.length) {
+                statusMsg.innerHTML = "✅ ¡Felicidades! PC ensamblada correctamente.";
+                statusMsg.style.backgroundColor = "#c6f6d5";
+            } else {
+                // Buscar el nombre legible del siguiente componente
+                const nextPartName = document.getElementById(nextPartId).innerText;
+                statusMsg.innerText = `✅ Correcto. Siguiente paso: Instala ${nextPartName}.`;
+                statusMsg.style.backgroundColor = "#e2e8f0";
+            }
+        }
+
+        function showError(wrongId) {
+            const wrongName = document.getElementById(wrongId).innerText;
+            const correctId = assemblyOrder[currentStep];
+            const correctName = document.getElementById(correctId).innerText;
+            
+            statusMsg.innerText = `❌ Error: No puedes instalar ${wrongName} todavía. Primero necesitas instalar ${correctName}.`;
+            statusMsg.style.backgroundColor = "#fed7d7";
+        }
+    </script>
+
 </body>
 </html>
