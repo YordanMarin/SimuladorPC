@@ -3,36 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador PC con Imágenes</title>
+    <title>Simulador PC - Imágenes Incrustadas</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #2b2b2b;
-            color: white;
+            background-color: #222; /* Fondo oscuro general */
+            color: #eee;
             display: flex;
             flex-direction: column;
             align-items: center;
             margin: 0;
             padding: 20px;
         }
-        h2 { margin-bottom: 10px; color: #00d2ff; }
+        h2 { margin-bottom: 10px; color: #4facfe; }
         
         #status-message {
             margin-bottom: 20px;
             padding: 15px;
-            background-color: #444;
-            border-left: 5px solid #00d2ff;
+            background-color: #333;
+            border-left: 5px solid #4facfe;
             border-radius: 4px;
             width: 80%;
+            max-width: 600px;
             text-align: center;
             font-size: 1.1em;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
 
         .container {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 40px;
+            gap: 30px;
             width: 100%;
             max-width: 1000px;
         }
@@ -42,229 +44,48 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
-            background: #3a3a3a;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            min-width: 150px;
+            background: #333;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            min-width: 160px;
         }
         
-        .panel-title { text-align: center; color: #ccc; margin-bottom: 10px; font-weight: bold; }
+        .panel-title { text-align: center; color: #aaa; margin-bottom: 15px; font-weight: bold; letter-spacing: 1px; }
 
         .component {
-            width: 120px;
-            height: 100px;
-            background-color: white;
+            width: 130px;
+            height: 90px;
+            background-color: #444;
             border-radius: 8px;
             cursor: grab;
             position: relative;
-            transition: transform 0.2s, box-shadow 0.2s;
-            /* Ajustes para que la imagen se vea bien */
-            background-size: contain; 
+            transition: all 0.2s ease;
+            /* Asegura que la imagen SVG se vea completa dentro de la caja */
+            background-size: 80%; 
             background-repeat: no-repeat;
             background-position: center;
             border: 2px solid #555;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
         
-        .component:hover { transform: scale(1.05); border-color: #00d2ff; }
-        .component:active { cursor: grabbing; }
+        .component:hover { transform: translateY(-5px); border-color: #4facfe; box-shadow: 0 8px 15px rgba(79, 172, 254, 0.3); }
+        .component:active { cursor: grabbing; transform: scale(0.98); }
 
-        /* --- IMÁGENES REALES (URLs Públicas) --- */
-        /* Placa Base */
-        #comp-placa { background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Computer-motherboard.jpg/320px-Computer-motherboard.jpg'); }
-        /* CPU */
-        #comp-cpu { background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Intel_80486DX2_top.jpg/320px-Intel_80486DX2_top.jpg'); }
-        /* RAM */
-        #comp-ram { background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/DDR3_RAM.jpg/320px-DDR3_RAM.jpg'); }
-        /* Tarjeta Gráfica */
-        #comp-gpu { background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Nvidia_GeForce_GTX_660_Ti.jpg/320px-Nvidia_GeForce_GTX_660_Ti.jpg'); }
-        /* Fuente de Poder */
-        #comp-fuente { background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/ATX_Power_Supply.jpg/320px-ATX_Power_Supply.jpg'); }
-
-        /* Etiqueta de texto debajo de cada imagen */
-        .component::after {
-            content: attr(data-name);
-            position: absolute;
-            bottom: -20px;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            font-size: 12px;
-            color: #ccc;
-            background: transparent;
-        }
-
-        /* --- ZONA DE ENSAMBLAJE (GABINETE) --- */
-        .build-zone {
-            width: 500px;
-            height: 550px;
-            background-color: #1a1a1a;
-            border: 4px dashed #555;
-            border-radius: 15px;
-            position: relative;
-            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Empty_ATX_Computer_Case.jpg/450px-Empty_ATX_Computer_Case.jpg');
-            background-size: cover;
-            background-position: center;
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
-        }
-
-        .build-zone.drag-over {
-            border-color: #00ff00;
-            box-shadow: 0 0 20px #00ff00;
-        }
-
-        /* --- PIEZAS INSTALADAS --- */
-        /* Estilos específicos para cuando la pieza ya está "dentro" del PC */
-        .installed {
-            position: absolute;
-            cursor: default;
-            box-shadow: none;
-            border: none;
-            background-color: transparent;
-            z-index: 10;
-        }
-
-        /* POSICIONAMIENTO EN EL GABINETE (Ajustado "a ojo" para encajar) */
-        #installed-placa { 
-            width: 320px; height: 320px; 
-            top: 50px; left: 60px; 
-            z-index: 1; 
-        }
-        #installed-cpu { 
-            width: 50px; height: 50px; 
-            top: 150px; left: 195px; 
-            z-index: 3; 
-        }
-        #installed-ram { 
-            width: 10px; height: 120px; /* La RAM va vertical a veces o horizontal según la foto */
-            top: 120px; left: 260px; 
-            transform: rotate(0deg); /* Ajuste visual */
-            z-index: 3; 
-        }
-        #installed-gpu { 
-            width: 200px; height: 60px; 
-            top: 250px; left: 80px; 
-            z-index: 4; 
-        }
-        #installed-fuente { 
-            width: 150px; height: 100px; 
-            bottom: 20px; left: 50px; 
-            z-index: 2; 
-        }
-
-    </style>
-</head>
-<body>
-
-    <h2>🛠️ Simulador de Ensamble PC</h2>
-    <div id="status-message">Instrucción: Arrastra la <b>Placa Base</b> dentro del gabinete vacío.</div>
-
-    <div class="container">
-        <div class="parts-panel">
-            <div class="panel-title">Componentes</div>
-            <div class="component" draggable="true" id="comp-fuente" data-name="Fuente de Poder"></div>
-            <div class="component" draggable="true" id="comp-gpu" data-name="Tarjeta Gráfica"></div>
-            <div class="component" draggable="true" id="comp-cpu" data-name="Procesador (CPU)"></div>
-            <div class="component" draggable="true" id="comp-placa" data-name="Placa Base"></div>
-            <div class="component" draggable="true" id="comp-ram" data-name="Memoria RAM"></div>
-        </div>
-
-        <div class="build-zone" id="case-dropzone">
-            </div>
-    </div>
-
-    <script>
-        // --- LÓGICA (JavaScript) ---
+        /* --- IMÁGENES INCRUSTADAS (SVG Data URIs) --- */
+        /* He creado estos gráficos vectoriales y los he codificado aquí para que no fallen nunca */
         
-        // Orden estricto de instalación
-        const assemblyOrder = ['comp-placa', 'comp-cpu', 'comp-ram', 'comp-gpu', 'comp-fuente'];
-        const componentNames = {
-            'comp-placa': 'Placa Base',
-            'comp-cpu': 'Procesador',
-            'comp-ram': 'Memoria RAM',
-            'comp-gpu': 'Tarjeta Gráfica',
-            'comp-fuente': 'Fuente de Poder'
-        };
-
-        let currentStep = 0;
-
-        const parts = document.querySelectorAll('.component');
-        const dropZone = document.getElementById('case-dropzone');
-        const statusMsg = document.getElementById('status-message');
-
-        parts.forEach(part => {
-            part.addEventListener('dragstart', dragStart);
-        });
-
-        dropZone.addEventListener('dragover', dragOver);
-        dropZone.addEventListener('dragleave', dragLeave);
-        dropZone.addEventListener('drop', dropEvent);
-
-        function dragStart(e) {
-            e.dataTransfer.setData('text/plain', e.target.id);
-        }
-
-        function dragOver(e) {
-            e.preventDefault();
-            dropZone.classList.add('drag-over');
-        }
-
-        function dragLeave(e) {
-            dropZone.classList.remove('drag-over');
-        }
-
-        function dropEvent(e) {
-            e.preventDefault();
-            dropZone.classList.remove('drag-over');
-
-            const draggedItemId = e.dataTransfer.getData('text');
-            
-            // Verificamos si existe el elemento (por seguridad)
-            if(!draggedItemId) return;
-            const draggedElement = document.getElementById(draggedItemId);
-
-            // 1. VALIDACIÓN: ¿Es la pieza correcta?
-            if (draggedItemId === assemblyOrder[currentStep]) {
-                installComponent(draggedElement);
-            } else {
-                // Mensaje de Error
-                const needed = componentNames[assemblyOrder[currentStep]];
-                const tried = componentNames[draggedItemId];
-                statusMsg.style.borderLeftColor = "#ff4444";
-                statusMsg.innerHTML = `⛔ <b>Error:</b> Intentaste poner "${tried}". <br>Primero necesitas instalar: <b>${needed}</b>.`;
-            }
-        }
-
-        function installComponent(element) {
-            // Clonamos la imagen
-            const installedComponent = element.cloneNode(true);
-            installedComponent.classList.add('installed');
-            installedComponent.setAttribute('draggable', 'false');
-            
-            // Generamos ID nuevo para posicionarlo con CSS
-            installedComponent.id = 'installed-' + element.id.replace('comp-', '');
-
-            // Agregamos al gabinete
-            dropZone.appendChild(installedComponent);
-            
-            // Eliminamos del menú original
-            element.remove();
-
-            // Avanzamos paso
-            currentStep++;
-            updateStatus();
-        }
-
-        function updateStatus() {
-            if (currentStep >= assemblyOrder.length) {
-                statusMsg.style.borderLeftColor = "#00ff00";
-                statusMsg.innerHTML = "✅ <b>¡Excelente!</b> Has ensamblado la PC completa.";
-            } else {
-                const nextPart = componentNames[assemblyOrder[currentStep]];
-                statusMsg.style.borderLeftColor = "#00d2ff";
-                statusMsg.innerHTML = `✅ Correcto. Siguiente paso: Instala <b>${nextPart}</b>.`;
-            }
-        }
-    </script>
-</body>
-</html>
+        /* Placa Base (Naranja) */
+        #comp-placa { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23d35400' rx='5'/%3E%3Crect x='35' y='35' width='30' height='30' fill='%23e67e22' stroke='%23f1c40f' stroke-width='2'/%3E%3Cline x1='10' y1='10' x2='90' y2='10' stroke='%23e67e22' stroke-width='2'/%3E%3Cline x1='10' y1='20' x2='90' y2='20' stroke='%23e67e22' stroke-width='2'/%3E%3Crect x='10' y='50' width='10' height='40' fill='%23c0392b'/%3E%3Crect x='80' y='50' width='10' height='40' fill='%23c0392b'/%3E%3C/svg%3E"); }
+        
+        /* CPU (Azul) */
+        #comp-cpu { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='10' y='10' width='80' height='80' fill='%233498db' rx='10' stroke='%232980b9' stroke-width='4'/%3E%3Ctext x='50' y='55' font-family='Arial' font-size='20' fill='white' text-anchor='middle' dominant-baseline='middle'%3ECPU%3C/text%3E%3Ccircle cx='20' cy='20' r='3' fill='gold'/%3E%3Ccircle cx='80' cy='80' r='3' fill='gold'/%3E%3C/svg%3E"); }
+        
+        /* RAM (Verde) */
+        #comp-ram { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 50'%3E%3Crect width='150' height='50' fill='%2327ae60' rx='5'/%3E%3Crect x='10' y='10' width='30' height='30' fill='%232ecc71'/%3E%3Crect x='50' y='10' width='30' height='30' fill='%232ecc71'/%3E%3Crect x='90' y='10' width='30' height='30' fill='%232ecc71'/%3E%3Crect x='130' y='10' width='10' height='30' fill='%23f1c40f'/%3E%3C/svg%3E"); background-size: 90%; }
+        
+        /* Tarjeta Gráfica (Morado/Rojo) */
+        #comp-gpu { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 80'%3E%3Crect width='150' height='80' fill='%238e44ad' rx='5'/%3E%3Ccircle cx='50' cy='40' r='25' fill='%239b59b6' stroke='%23333' stroke-width='3'/%3E%3Ccircle cx='110' cy='40' r='25' fill='%239b59b6' stroke='%23333' stroke-width='3'/%3E%3Crect x='140' y='20' width='10' height='40' fill='%23c0392b'/%3E%3C/svg%3E"); background-size: 90%; }
+        
+        /* Fuente de Poder (Gris) */
+        #comp-fuente
