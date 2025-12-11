@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Laboratorio de Ética y Ciberseguridad</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #020617 0, #000 60%);
+      color: #e5e7eb;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    main {
+      width: 100%;
+      max-width: 1100px;
+      margin: 16px;
+      border-radius: 16px;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.15), rgba(15, 23, 42, 0.98));
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      padding: 12px 18px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.4);
+      background: linear-gradient(90deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.7));
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    header h1 span.logo {
+      font-size: 1.3rem;
+    }
+
+    header .chip {
+      font-size: 0.7rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(52, 211, 153, 0.9);
+      color: #bbf7d0;
+      background: rgba(22, 163, 74, 0.15);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    #top-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.9));
+    }
+
+    #top-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.78rem;
+    }
+
+    #top-left strong {
+      color: #e5e7eb;
+    }
+
+    #top-left span.small {
+      color: #9ca3af;
+    }
+
+    #top-right {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: flex-end;
+      font-size: 0.78rem;
+    }
+
+    #score-chip {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(56, 189, 248, 0.8);
+      background: rgba(15, 23, 42, 0.9);
+      color: #e0f2fe;
+    }
+
+    #global-progress {
+      width: 180px;
+      height: 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: rgba(15, 23, 42, 1);
+      overflow: hidden;
+    }
+
+    #global-progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #22c55e, #22d3ee);
+      border-radius: 999px;
+      transition: width 0.2s ease-out;
+    }
+
+    nav {
+      display: flex;
+      padding: 6px 10px;
+      gap: 8px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+      background: linear-gradient(90deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.9));
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      border: none;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.9);
+      color: #cbd5f5;
+      border: 1px solid rgba(75, 85, 99, 0.8);
+      transition: background 0.12s ease, box-shadow 0.12s ease, transform 0.08s ease, color 0.12s ease;
+    }
+
+    .tab-btn span.icon {
+      font-size: 0.9rem;
+    }
+
+    .tab-btn:hover {
+      background: rgba(15, 23, 42, 1);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.6);
+      transform: translateY(-1px);
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(90deg, rgba(37, 99, 235, 0.95), rgba(56, 189, 248, 0.95));
+      color: #f9fafb;
+      border-color: transparent;
+      box-shadow: 0 0 12px rgba(37, 99, 235, 0.7);
+    }
+
+    #content {
+      padding: 12px 16px 14px;
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(260px, 2fr);
+      gap: 12px;
+      min-height: 400px;
+    }
+
+    @media (max-width: 850px) {
+      #content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    section.mision {
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.9);
+      padding: 10px 12px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    section.mision.active {
+      display: flex;
+    }
+
+    section.mision h2 {
+      margin: 0;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    section.mision h2 span.badge-mision {
+      font-size: 0.7rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      color: #e5e7eb;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .mision-desc {
+      font-size: 0.78rem;
+      color: #cbd5f5;
+    }
+
+    /* Panel lateral (log e instrucciones) */
+    #side-panel {
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.96);
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.78rem;
+    }
+
+    #side-panel h3 {
+      margin: 0;
+      font-size: 0.85rem;
+    }
+
+    #side-instructions {
+      color: #e5e7eb;
+    }
+
+    #side-ethics {
+      font-size: 0.76rem;
+      color: #bfdbfe;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+    }
+
+    #log {
+      max-height: 220px;
+      overflow-y: auto;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+    }
+
+    .log-msg {
+      margin-bottom: 4px;
+      line-height: 1.35;
+    }
+
+    .log-msg small {
+      color: #6b7280;
+      font-size: 0.68rem;
+    }
+
+    .log-msg.ok {
+      color: #bbf7d0;
+    }
+
+    .log-msg.error {
+      color: #fecaca;
+    }
+
+    .log-msg.info {
+      color: #bfdbfe;
+    }
+
+    #global-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    #global-actions button {
+      font-size: 0.75rem;
+      padding: 6px 10px;
+    }
+
+    /* Misión 1: Drag & Drop Ético */
+    #m1-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.3fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 700px) {
+      #m1-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    #acciones-lista {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .accion-card {
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      padding: 6px 8px;
+      font-size: 0.78rem;
+      cursor: grab;
+      display: flex;
+      gap: 6px;
+      align-items: flex-start;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, border 0.12s ease;
+      user-select: none;
+    }
+
+    .accion-card span.icon {
+      font-size: 1rem;
+      margin-top: 2px;
+    }
+
+    .accion-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.8);
+      border-color: rgba(56, 189, 248, 0.9);
+    }
+
+    .accion-card.dragging {
+      opacity: 0.75;
+      transform: scale(0.97);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.9), 0 10px 30px rgba(0, 0, 0, 0.95);
+    }
+
+    .zona-drop {
+      border-radius: 10px;
+      padding: 8px;
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 1), rgba(15, 23, 42, 0.96));
+      border: 1px dashed rgba(148, 163, 184, 0.8);
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.78rem;
+    }
+
+    .zona-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+
+    .zona-title {
+      font-weight: 600;
+    }
+
+    .zona-hint {
+      font-size: 0.7rem;
+      color: #9ca3af;
+    }
+
+    .zona-drop.hover {
+      border-style: solid;
+      border-color: rgba(56, 189, 248, 0.9);
+      background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.25), rgba(15, 23, 42, 0.98));
+    }
+
+    .zona-drop.correct {
+      border-color: rgba(34, 197, 94, 0.95);
+      background: radial-gradient(circle at top left, rgba(22, 163, 74, 0.25), rgba(15, 23, 42, 0.98));
+    }
+
+    .zona-drop.incorrect {
+      border-color: rgba(248, 113, 113, 0.95);
+      animation: zonaError 0.25s ease;
+    }
+
+    @keyframes zonaError {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-3px); }
+      50% { transform: translateX(3px); }
+      75% { transform: translateX(-2px); }
+      100% { transform: translateX(0); }
+    }
+
+    #m1-actions {
+      margin-top: 6px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Misión 2: Historia de decisiones éticas */
+    #m2-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.3fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 700px) {
+      #m2-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    #m2-scenario {
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 8px 10px;
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    #m2-step-label {
+      font-size: 0.78rem;
+      color: #c4b5fd;
+    }
+
+    #m2-text {
+      line-height: 1.4;
+    }
+
+    #m2-choices {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .choice-btn {
+      border-radius: 8px;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      background: rgba(15, 23, 42, 0.96);
+      color: #e5e7eb;
+      padding: 6px 8px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      gap: 6px;
+      align-items: flex-start;
+      transition: background 0.12s ease, transform 0.08s ease, border 0.12s ease;
+    }
+
+    .choice-btn span.icon {
+      margin-top: 1px;
+    }
+
+    .choice-btn:hover {
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), rgba(15, 23, 42, 0.98));
+      border-color: rgba(56, 189, 248, 0.9);
+      transform: translateY(-1px);
+    }
+
+    .choice-btn.selected-good {
+      border-color: rgba(34, 197, 94, 0.95);
+      background: radial-gradient(circle at top left, rgba(22, 163, 74, 0.24), rgba(15, 23, 42, 0.98));
+    }
+
+    .choice-btn.selected-bad {
+      border-color: rgba(248, 113, 113, 0.95);
+      background: radial-gradient(circle at top left, rgba(248, 113, 113, 0.24), rgba(15, 23, 42, 0.98));
+    }
+
+    #m2-status {
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 8px 10px;
+      font-size: 0.78rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    #m2-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bar-label {
+      width: 90px;
+      font-size: 0.78rem;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 1);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 50%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #22d3ee);
+      transition: width 0.2s ease-out;
+    }
+
+    #m2-summary {
+      font-size: 0.78rem;
+      color: #e5e7eb;
+    }
+
+    /* Misión 3: Panel de configuración segura */
+    #m3-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.3fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 700px) {
+      #m3-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    #m3-panel {
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 8px 10px;
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+      border-bottom: 1px dashed rgba(55, 65, 81, 0.8);
+    }
+
+    .setting-row:last-child {
+      border-bottom: none;
+    }
+
+    .setting-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .setting-info strong {
+      font-size: 0.8rem;
+    }
+
+    .setting-info small {
+      font-size: 0.72rem;
+      color: #9ca3af;
+    }
+
+    .toggle {
+      position: relative;
+      width: 50px;
+      height: 24px;
+      border-radius: 999px;
+      background: rgba(30, 64, 175, 0.6);
+      border: 1px solid rgba(59, 130, 246, 0.8);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .toggle::before {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      transition: transform 0.18s ease-out;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+    }
+
+    .toggle.on {
+      background: rgba(22, 163, 74, 0.9);
+      border-color: rgba(34, 197, 94, 0.95);
+    }
+
+    .toggle.on::before {
+      transform: translateX(24px);
+    }
+
+    .setting-row.good strong {
+      color: #bbf7d0;
+    }
+
+    .setting-row.bad strong {
+      color: #fecaca;
+    }
+
+    #m3-status {
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 8px 10px;
+      font-size: 0.78rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    #m3-score-line {
+      font-weight: 600;
+    }
+
+    #m3-score-line.good {
+      color: #bbf7d0;
+    }
+
+    #m3-score-line.bad {
+      color: #fecaca;
+    }
+
+    #m3-hint {
+      color: #bfdbfe;
+    }
+
+    #m3-actions {
+      margin-top: 4px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    #m3-actions button {
+      font-size: 0.75rem;
+      padding: 6px 10px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>
+        <span class="logo">🛡️</span>
+        Laboratorio de Ética y Ciberseguridad
+      </h1>
+      <span class="chip">Unidad: Fundamentos y responsabilidad</span>
+    </header>
+
+    <div id="top-panel">
+      <div id="top-left">
+        <strong>Objetivo de la unidad</strong>
+        <span class="small">
+          Aplicar principios básicos de ciberseguridad, identificando amenazas y actuando con ética y responsabilidad en entornos digitales.
+        </span>
+      </div>
+      <div id="top-right">
+        <span id="score-chip">Puntaje ciberseguro: <span id="score-value">0</span> / 100</span>
+        <div id="global-progress">
+          <div id="global-progress-bar"></div>
+        </div>
+      </div>
+    </div>
+
+    <nav>
+      <button class="tab-btn active" data-target="mision1">
+        <span class="icon">⚖️</span>
+        Misión 1: Radar Ético
+      </button>
+      <button class="tab-btn" data-target="mision2">
+        <span class="icon">📂</span>
+        Misión 2: Decisiones ante un incidente
+      </button>
+      <button class="tab-btn" data-target="mision3">
+        <span class="icon">🧩</span>
+        Misión 3: Panel de configuración segura
+      </button>
+    </nav>
+
+    <div id="content">
+      <!-- Misiones -->
+      <div id="missions-container">
+        <!-- Misión 1 -->
+        <section id="mision1" class="mision active">
+          <h2>
+            ⚖️ Misión 1: Clasificar acciones digitales
+            <span class="badge-mision">Fundamentos y ética</span>
+          </h2>
+          <p class="mision-desc">
+            Arrastra cada acción digital a la zona correcta: <strong>Acción responsable</strong> o
+            <strong>Acción riesgosa/antiética</strong>. Luego pulsa <strong>Evaluar</strong>.
+          </p>
+          <div id="m1-layout">
+            <div>
+              <strong style="font-size:0.8rem;">Acciones a clasificar</strong>
+              <div id="acciones-lista">
+                <!-- Se llena desde JS -->
+              </div>
+            </div>
+            <div>
+              <div class="zona-drop" data-tipo="responsable" id="zona-responsable">
+                <div class="zona-header">
+                  <span class="zona-title">✅ Acción responsable</span>
+                  <span class="zona-hint">Protege datos y respeta a las personas</span>
+                </div>
+              </div>
+
+              <div style="height:6px;"></div>
+
+              <div class="zona-drop" data-tipo="riesgosa" id="zona-riesgosa">
+                <div class="zona-header">
+                  <span class="zona-title">⚠️ Acción riesgosa / antiética</span>
+                  <span class="zona-hint">Aumenta riesgos o daña a otros</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="m1-actions">
+            <button id="m1-evaluar">
+              📊 Evaluar clasificación
+            </button>
+            <button id="m1-reiniciar">
+              🔄 Reiniciar acciones
+            </button>
+          </div>
+        </section>
+
+        <!-- Misión 2 -->
+        <section id="mision2" class="mision">
+          <h2>
+            📂 Misión 2: Responder a un incidente con ética
+            <span class="badge-mision">Responsabilidad digital</span>
+          </h2>
+          <p class="mision-desc">
+            Leerás una historia breve de un incidente digital. En cada paso elige cómo actuar.
+            Tus decisiones afectan el <strong>nivel de seguridad</strong> y el <strong>nivel de ética</strong>.
+          </p>
+          <div id="m2-layout">
+            <div id="m2-scenario">
+              <span id="m2-step-label">Paso 1 de 3</span>
+              <div id="m2-text">
+                <!-- Texto desde JS -->
+              </div>
+              <div id="m2-choices">
+                <!-- Botones desde JS -->
+              </div>
+            </div>
+            <div id="m2-status">
+              <strong>Panel de integridad y seguridad</strong>
+              <div id="m2-bars">
+                <div class="bar-row">
+                  <span class="bar-label">Ética digital</span>
+                  <div class="bar-track">
+                    <div class="bar-fill" id="m2-bar-etica" style="width:60%;"></div>
+                  </div>
+                </div>
+                <div class="bar-row">
+                  <span class="bar-label">Seguridad técnica</span>
+                  <div class="bar-track">
+                    <div class="bar-fill" id="m2-bar-seguridad" style="width:60%;"></div>
+                  </div>
+                </div>
+              </div>
+              <div id="m2-summary">
+                Toma decisiones para mantener alto tu compromiso ético y la seguridad del sistema.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Misión 3 -->
+        <section id="mision3" class="mision">
+          <h2>
+            🧩 Misión 3: Configuración segura y responsable
+            <span class="badge-mision">Proyección en ciberseguridad</span>
+          </h2>
+          <p class="mision-desc">
+            Activa o desactiva opciones en este panel para lograr un perfil digital <strong>seguro y ético</strong>.
+            Luego pulsa <strong>Analizar configuración</strong>.
+          </p>
+          <div id="m3-layout">
+            <div id="m3-panel">
+              <!-- Ajustes se crean desde JS -->
+            </div>
+            <div id="m3-status">
+              <div id="m3-score-line">
+                Configuración aún no evaluada…
+              </div>
+              <div id="m3-hint">
+                Ajusta las opciones pensando en:
+                <strong>protección de datos, respeto a otras personas y cumplimiento de normas</strong>.
+              </div>
+              <div id="m3-actions">
+                <button id="m3-evaluar">📊 Analizar configuración</button>
+                <button id="m3-autosegura">✨ Aplicar configuración sugerida</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Panel lateral -->
+      <aside id="side-panel">
+        <h3>Consola de ética y responsabilidad</h3>
+        <div id="side-instructions">
+          Cambia de misión con las pestañas superiores. Cada misión entrena un aspecto distinto:
+          clasificación ética de acciones, respuesta ante incidentes y configuración segura.
+        </div>
+        <div id="side-ethics">
+          💡 Recuerda: actuar con ética en ciberseguridad implica proteger datos,
+          respetar la privacidad, reportar incidentes de forma responsable y no aprovechar
+          vulnerabilidades para dañar a otros.
+        </div>
+        <div>
+          <strong>Registro de decisiones</strong>
+          <div id="log"></div>
+        </div>
+        <div id="global-actions">
+          <button id="btn-reset-global">🔁 Reiniciar laboratorio</button>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      // Estado global
+      const state = {
+        score: 0,
+        missionsCompleted: {
+          m1: false,
+          m2: false,
+          m3: false
+        }
+      };
+
+      const scoreValueEl = document.getElementById("score-value");
+      const globalProgressBar = document.getElementById("global-progress-bar");
+
+      function updateGlobalScore(extra) {
+        if (typeof extra === "number") {
+          state.score = Math.max(0, Math.min(100, state.score + extra));
+        }
+        scoreValueEl.textContent = state.score.toString();
+
+        const completedCount = Object.values(state.missionsCompleted).filter(Boolean).length;
+        const percent = (completedCount / 3) * 100;
+        globalProgressBar.style.width = percent + "%";
+      }
+
+      // Log
+      const logEl = document.getElementById("log");
+      function addLog(message, type = "info") {
+        const div = document.createElement("div");
+        div.className = "log-msg " + type;
+        const now = new Date();
+        const time = now.toLocaleTimeString("es-PE", {
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+        div.innerHTML = `<strong>[${time}]</strong> ${message}`;
+        logEl.prepend(div);
+      }
+
+      // Tabs
+      const tabButtons = Array.from(document.querySelectorAll(".tab-btn"));
+      const missionSections = Array.from(document.querySelectorAll("section.mision"));
+
+      tabButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          const target = btn.dataset.target;
+          tabButtons.forEach(b => b.classList.remove("active"));
+          missionSections.forEach(sec => sec.classList.remove("active"));
+
+          btn.classList.add("active");
+          document.getElementById(target).classList.add("active");
+
+          addLog(`Cambiando a ${btn.textContent.trim()}`, "info");
+        });
+      });
+
+      // =========================
+      // MISIÓN 1: RADAR ÉTICO
+      // =========================
+      const accionesData = [
+        {
+          id: "a1",
+          texto: "Compartir tu contraseña del correo con un compañero por WhatsApp para que envíe una tarea por ti.",
+          tipoCorrecto: "riesgosa",
+          icono: "🔓"
+        },
+        {
+          id: "a2",
+          texto: "Avisar a la persona encargada cuando detectas un fallo de seguridad en la plataforma de tu institución.",
+          tipoCorrecto: "responsable",
+          icono: "📣"
+        },
+        {
+          id: "a3",
+          texto: "Instalar software pirata en los equipos del laboratorio para ‘ahorrar dinero’.",
+          tipoCorrecto: "riesgosa",
+          icono: "💿"
+        },
+        {
+          id: "a4",
+          texto: "Usar contraseñas largas y diferentes para cada servicio importante.",
+          tipoCorrecto: "responsable",
+          icono: "🧩"
+        },
+        {
+          id: "a5",
+          texto: "Publicar datos personales de otra persona sin su permiso en un grupo público.",
+          tipoCorrecto: "riesgosa",
+          icono: "📤"
+        },
+        {
+          id: "a6",
+          texto: "Verificar la autenticidad de un mensaje antes de reenviarlo a toda la clase.",
+          tipoCorrecto: "responsable",
+          icono: "🔍"
+        }
+      ];
+
+      const accionesListaEl = document.getElementById("acciones-lista");
+      const zonaResponsableEl = document.getElementById("zona-responsable");
+      const zonaRiesgosaEl = document.getElementById("zona-riesgosa");
+      const m1EvaluarBtn = document.getElementById("m1-evaluar");
+      const m1ReiniciarBtn = document.getElementById("m1-reiniciar");
+
+      function renderAcciones() {
+        accionesListaEl.innerHTML = "";
+        accionesData.forEach(acc => {
+          const card = document.createElement("div");
+          card.className = "accion-card";
+          card.draggable = true;
+          card.dataset.id = acc.id;
+          card.dataset.tipoCorrecto = acc.tipoCorrecto;
+          card.innerHTML = `
+            <span class="icon">${acc.icono}</span>
+            <div>${acc.texto}</div>
+          `;
+          accionesListaEl.appendChild(card);
+        });
+        configureDragDrop();
+      }
+
+      function configureDragDrop() {
+        const cards = Array.from(document.querySelectorAll(".accion-card"));
+
+        cards.forEach(card => {
+          card.addEventListener("dragstart", e => {
+            card.classList.add("dragging");
+            e.dataTransfer.setData("text/plain", card.dataset.id);
+          });
+          card.addEventListener("dragend", () => {
+            card.classList.remove("dragging");
+          });
+        });
+
+        [zonaResponsableEl, zonaRiesgosaEl, accionesListaEl].forEach(zone => {
+          zone.addEventListener("dragover", e => {
+            e.preventDefault();
+            if (zone.classList.contains("zona-drop")) {
+              zone.classList.add("hover");
+            }
+          });
+
+          zone.addEventListener("dragleave", () => {
+            zone.classList.remove("hover");
+          });
+
+          zone.addEventListener("drop", e => {
+            e.preventDefault();
+            zone.classList.remove("hover");
+            const id = e.dataTransfer.getData("text/plain");
+            const card = document.querySelector(`.accion-card[data-id="${id}"]`);
+            if (card) {
+              zone.appendChild(card);
+            }
+          });
+        });
+      }
+
+      function evaluarMision1() {
+        const zonas = [
+          { el: zonaResponsableEl, tipo: "responsable" },
+          { el: zonaRiesgosaEl, tipo: "riesgosa" }
+        ];
+
+        let correctos = 0;
+        let total = accionesData.length;
+
+        zonas.forEach(z => {
+          z.el.classList.remove("correct", "incorrect");
+          const cards = Array.from(z.el.querySelectorAll(".accion-card"));
+          let zonaCorrecta = true;
+          cards.forEach(card => {
+            if (card.dataset.tipoCorrecto !== z.tipo) {
+              zonaCorrecta = false;
+            }
+          });
+          if (zonaCorrecta && cards.length > 0) {
+            z.el.classList.add("correct");
+          } else if (cards.length > 0) {
+            z.el.classList.add("incorrect");
+          }
+
+          cards.forEach(card => {
+            if (card.dataset.tipoCorrecto === z.tipo) {
+              correctos++;
+            }
+          });
+        });
+
+        const porcentaje = Math.round((correctos / total) * 100);
+        if (porcentaje === 100) {
+          addLog("Misión 1 completada con clasificación perfecta. Excelente criterio ético.", "ok");
+          if (!state.missionsCompleted.m1) {
+            state.missionsCompleted.m1 = true;
+            updateGlobalScore(35);
+          }
+        } else if (porcentaje >= 60) {
+          addLog(
+            `Buena clasificación en Misión 1 (${porcentaje}%). Revisa las acciones que dudaste para reforzar el criterio.`,
+            "info"
+          );
+          if (!state.missionsCompleted.m1) {
+            state.missionsCompleted.m1 = true;
+            updateGlobalScore(25);
+          }
+        } else {
+          addLog(
+            `Clasificación baja en Misión 1 (${porcentaje}%). Revisa qué acciones aumentan el riesgo o dañan a otras personas.`,
+            "error"
+          );
+        }
+      }
+
+      function reiniciarMision1() {
+        zonaResponsableEl.classList.remove("correct", "incorrect");
+        zonaRiesgosaEl.classList.remove("correct", "incorrect");
+
+        [zonaResponsableEl, zonaRiesgosaEl].forEach(z => {
+          const cards = Array.from(z.querySelectorAll(".accion-card"));
+          cards.forEach(c => accionesListaEl.appendChild(c));
+        });
+
+        addLog("Acciones de la Misión 1 reiniciadas.", "info");
+      }
+
+      m1EvaluarBtn.addEventListener("click", evaluarMision1);
+      m1ReiniciarBtn.addEventListener("click", reiniciarMision1);
+
+      renderAcciones();
+
+      // =========================
+      // MISIÓN 2: DECISIONES
+      // =========================
+      const storySteps = [
+        {
+          id: 1,
+          text:
+            "Tu institución detecta que una cuenta de estudiante ha sido comprometida. Te enteras de que un compañero encontró la contraseña anotada en un papel y la usó para entrar a la cuenta sin permiso.",
+          choices: [
+            {
+              text: "Hablar con la persona afectada, recomendarle cambiar la contraseña y reportar el incidente al área responsable.",
+              ethicDelta: 15,
+              secDelta: 10,
+              good: true
+            },
+            {
+              text: "Ignorar la situación porque 'no es tu problema' y esperar a que el dueño de la cuenta se dé cuenta solo.",
+              ethicDelta: -10,
+              secDelta: -10,
+              good: false
+            }
+          ]
+        },
+        {
+          id: 2,
+          text:
+            "El área de TI te pide ayuda para recopilar evidencia. Puedes ver parte del historial de uso de la cuenta comprometida.",
+          choices: [
+            {
+              text: "Solo revisas la información estrictamente necesaria y evitas compartir capturas o datos sensibles con otras personas.",
+              ethicDelta: 10,
+              secDelta: 10,
+              good: true
+            },
+            {
+              text: "Aprovechas para curiosear conversaciones personales y comentas detalles con tus amigos.",
+              ethicDelta: -15,
+              secDelta: -5,
+              good: false
+            }
+          ]
+        },
+        {
+          id: 3,
+          text:
+            "Tras el incidente, te ofrecen participar en un pequeño proyecto para mejorar las políticas de seguridad en el campus.",
+          choices: [
+            {
+              text: "Aceptas, propones campañas de concienciación sobre contraseñas seguras y manejo de incidentes.",
+              ethicDelta: 10,
+              secDelta: 15,
+              good: true
+            },
+            {
+              text: "Rechazas participar y publicas en redes detalles del incidente para 'exponer' a la persona que usó la cuenta.",
+              ethicDelta: -20,
+              secDelta: -10,
+              good: false
+            }
+          ]
+        }
+      ];
+
+      const m2StepLabel = document.getElementById("m2-step-label");
+      const m2TextEl = document.getElementById("m2-text");
+      const m2ChoicesEl = document.getElementById("m2-choices");
+      const m2BarEtica = document.getElementById("m2-bar-etica");
+      const m2BarSeguridad = document.getElementById("m2-bar-seguridad");
+      const m2Summary = document.getElementById("m2-summary");
+
+      const m2State = {
+        currentStepIndex: 0,
+        ethicScore: 60,
+        secScore: 60,
+        finished: false
+      };
+
+      function updateM2Bars() {
+        m2BarEtica.style.width = Math.max(0, Math.min(100, m2State.ethicScore)) + "%";
+        m2BarSeguridad.style.width = Math.max(0, Math.min(100, m2State.secScore)) + "%";
+      }
+
+      function renderM2Step() {
+        const step = storySteps[m2State.currentStepIndex];
+        if (!step) return;
+
+        m2StepLabel.textContent = `Paso ${step.id} de ${storySteps.length}`;
+        m2TextEl.textContent = step.text;
+        m2ChoicesEl.innerHTML = "";
+
+        step.choices.forEach((choice, idx) => {
+          const btn = document.createElement("button");
+          btn.className = "choice-btn";
+          btn.innerHTML = `<span class="icon">${idx === 0 ? "🧠" : "⚙️"}</span><span>${choice.text}</span>`;
+          btn.addEventListener("click", () => handleM2Choice(choice, btn));
+          m2ChoicesEl.appendChild(btn);
+        });
+
+        m2Summary.textContent =
+          "Analiza la situación y elige la opción que mejor combine ética, respeto y seguridad.";
+      }
+
+      function handleM2Choice(choice, btn) {
+        if (m2State.finished) return;
+
+        // Desactivar botones
+        Array.from(m2ChoicesEl.querySelectorAll(".choice-btn")).forEach(b => {
+          b.disabled = true;
+          b.style.cursor = "default";
+        });
+
+        if (choice.good) {
+          btn.classList.add("selected-good");
+          addLog("Has tomado una decisión ética y responsable en la Misión 2.", "ok");
+        } else {
+          btn.classList.add("selected-bad");
+          addLog("Tu decisión en la Misión 2 puede mejorar. Piensa en la privacidad y el respeto.", "error");
+        }
+
+        m2State.ethicScore += choice.ethicDelta;
+        m2State.secScore += choice.secDelta;
+        updateM2Bars();
+
+        if (m2State.currentStepIndex < storySteps.length - 1) {
+          setTimeout(() => {
+            m2State.currentStepIndex++;
+            renderM2Step();
+          }, 550);
+        } else {
+          m2State.finished = true;
+          mostrarM2ResumenFinal();
+        }
+      }
+
+      function mostrarM2ResumenFinal() {
+        const prom = (m2State.ethicScore + m2State.secScore) / 2;
+        if (prom >= 70) {
+          m2Summary.textContent =
+            "Excelente. Tus decisiones muestran un fuerte compromiso con la ética y la seguridad en incidentes de ciberseguridad.";
+          addLog("Misión 2 completada con alto nivel de ética y seguridad.", "ok");
+          if (!state.missionsCompleted.m2) {
+            state.missionsCompleted.m2 = true;
+            updateGlobalScore(35);
+          }
+        } else if (prom >= 50) {
+          m2Summary.textContent =
+            "Has tomado decisiones aceptables, pero hay margen de mejora para proteger mejor la privacidad y la seguridad.";
+          addLog("Misión 2 completada, pero con oportunidades de mejora en tus decisiones.", "info");
+          if (!state.missionsCompleted.m2) {
+            state.missionsCompleted.m2 = true;
+            updateGlobalScore(25);
+          }
+        } else {
+          m2Summary.textContent =
+            "Varias decisiones fueron poco éticas o inseguras. Reflexiona sobre cómo tus acciones afectan a otras personas y a la institución.";
+          addLog("Misión 2 finalizada con un nivel bajo de ética y seguridad.", "error");
+        }
+      }
+
+      function resetM2() {
+        m2State.currentStepIndex = 0;
+        m2State.ethicScore = 60;
+        m2State.secScore = 60;
+        m2State.finished = false;
+        updateM2Bars();
+        renderM2Step();
+        addLog("Misión 2 reiniciada. Vuelve a tomar decisiones en el incidente.", "info");
+      }
+
+      // Inicializar M2
+      updateM2Bars();
+      renderM2Step();
+
+      // =========================
+      // MISIÓN 3: CONFIGURACIÓN
+      // =========================
+      const settingsData = [
+        {
+          id: "s1",
+          nombre: "Doble factor de autenticación (2FA) activado",
+          descripcion: "Requiere un segundo paso (código, app, token) para entrar a la cuenta.",
+          shouldBeOn: true
+        },
+        {
+          id: "s2",
+          nombre: "Permitir que cualquier persona vea toda tu información de perfil",
+          descripcion: "La configuración de privacidad está completamente abierta.",
+          shouldBeOn: false
+        },
+        {
+          id: "s3",
+          nombre: "Uso de contraseña '123456' en la cuenta principal",
+          descripcion: "Contraseña muy débil y fácilmente adivinable.",
+          shouldBeOn: false
+        },
+        {
+          id: "s4",
+          nombre: "Revisión periódica de permisos de aplicaciones conectadas",
+          descripcion: "Cada cierto tiempo revisas qué apps tienen acceso a tus datos.",
+          shouldBeOn: true
+        },
+        {
+          id: "s5",
+          nombre: "Compartir capturas con datos sensibles en grupos públicos",
+          descripcion: "Capturas de pantalla muestran correos, códigos o datos privados.",
+          shouldBeOn: false
+        },
+        {
+          id: "s6",
+          nombre: "Instalar actualizaciones de seguridad recomendadas",
+          descripcion: "Mantienes sistema y aplicaciones al día.",
+          shouldBeOn: true
+        }
+      ];
+
+      const m3PanelEl = document.getElementById("m3-panel");
+      const m3ScoreLine = document.getElementById("m3-score-line");
+      const m3Hint = document.getElementById("m3-hint");
+      const m3EvaluarBtn = document.getElementById("m3-evaluar");
+      const m3AutoBtn = document.getElementById("m3-autosegura");
+
+      function renderSettings() {
+        m3PanelEl.innerHTML = "<strong>Panel de configuración del perfil digital</strong>";
+        settingsData.forEach(st => {
+          const row = document.createElement("div");
+          row.className = "setting-row";
+          row.dataset.id = st.id;
+
+          const info = document.createElement("div");
+          info.className = "setting-info";
+          info.innerHTML = `<strong>${st.nombre}</strong><small>${st.descripcion}</small>`;
+
+          const toggle = document.createElement("div");
+          toggle.className = "toggle";
+          toggle.dataset.id = st.id;
+          // Estado inicial: on para las que deberían estar encendidas
+          if (st.shouldBeOn) {
+            toggle.classList.add("on");
+          }
+
+          toggle.addEventListener("click", () => {
+            toggle.classList.toggle("on");
+          });
+
+          row.appendChild(info);
+          row.appendChild(toggle);
+          m3PanelEl.appendChild(row);
+        });
+      }
+
+      function evaluarMision3() {
+        let correctos = 0;
+        settingsData.forEach(st => {
+          const toggle = m3PanelEl.querySelector(`.toggle[data-id="${st.id}"]`);
+          const row = m3PanelEl.querySelector(`.setting-row[data-id="${st.id}"]`);
+          const isOn = toggle.classList.contains("on");
+          row.classList.remove("good", "bad");
+
+          if (isOn === st.shouldBeOn) {
+            correctos++;
+            row.classList.add("good");
+          } else {
+            row.classList.add("bad");
+          }
+        });
+
+        const total = settingsData.length;
+        const porcentaje = Math.round((correctos / total) * 100);
+
+        m3ScoreLine.classList.remove("good", "bad");
+        if (porcentaje === 100) {
+          m3ScoreLine.textContent = `Configuración impecable (${porcentaje}%). Tu perfil es muy seguro y ético.`;
+          m3ScoreLine.classList.add("good");
+          m3Hint.textContent =
+            "Mantén estas prácticas en tus cuentas reales: 2FA, buenas contraseñas, actualizaciones, privacidad y cuidado con lo que compartes.";
+          addLog("Misión 3 completada con configuración óptima.", "ok");
+          if (!state.missionsCompleted.m3) {
+            state.missionsCompleted.m3 = true;
+            updateGlobalScore(30);
+          }
+        } else if (porcentaje >= 60) {
+          m3ScoreLine.textContent = `Configuración aceptable (${porcentaje}%). Aún puedes reducir riesgos.`;
+          m3ScoreLine.classList.add("good");
+          m3Hint.textContent =
+            "Revisa especialmente las opciones relacionadas con contraseñas débiles, exposición de datos y permisos excesivos.";
+          addLog("Misión 3 completada con configuración razonable, pero mejorable.", "info");
+          if (!state.missionsCompleted.m3) {
+            state.missionsCompleted.m3 = true;
+            updateGlobalScore(20);
+          }
+        } else {
+          m3ScoreLine.textContent = `Configuración poco segura (${porcentaje}%). Hay varias opciones peligrosas.`;
+          m3ScoreLine.classList.add("bad");
+          m3Hint.textContent =
+            "Piensa: ¿qué prácticas abrirían la puerta a ataques o dañarían la privacidad de otras personas?";
+          addLog("Misión 3 evaluada con configuración de alto riesgo.", "error");
+        }
+      }
+
+      function aplicarAutoSegura() {
+        settingsData.forEach(st => {
+          const toggle = m3PanelEl.querySelector(`.toggle[data-id="${st.id}"]`);
+          if (!toggle) return;
+          if (st.shouldBeOn) {
+            toggle.classList.add("on");
+          } else {
+            toggle.classList.remove("on");
+          }
+        });
+        m3ScoreLine.textContent = "Se aplicó una configuración sugerida. Ahora evalúa para ver el resultado.";
+        m3ScoreLine.classList.remove("good", "bad");
+        m3Hint.textContent =
+          "Esta configuración prioriza 2FA, actualizaciones y privacidad. Úsala como modelo para tus cuentas reales.";
+        addLog("Se aplicó la configuración sugerida en la Misión 3.", "info");
+      }
+
+      m3EvaluarBtn.addEventListener("click", evaluarMision3);
+      m3AutoBtn.addEventListener("click", aplicarAutoSegura);
+
+      renderSettings();
+
+      // =========================
+      // RESET GLOBAL
+      // =========================
+      const btnResetGlobal = document.getElementById("btn-reset-global");
+      btnResetGlobal.addEventListener("click", () => {
+        // Reset global state
+        state.score = 0;
+        state.missionsCompleted = { m1: false, m2: false, m3: false };
+        updateGlobalScore(0); // solo para refrescar
+        // Reset misión 1
+        renderAcciones();
+        // Reset misión 2
+        resetM2();
+        // Reset misión 3
+        renderSettings();
+        m3ScoreLine.textContent = "Configuración aún no evaluada…";
+        m3ScoreLine.classList.remove("good", "bad");
+        m3Hint.textContent =
+          "Ajusta las opciones pensando en: protección de datos, respeto a otras personas y cumplimiento de normas.";
+        addLog("Laboratorio reiniciado por completo. Vuelve a recorrer las tres misiones.", "info");
+      });
+
+      // Mensajes iniciales
+      updateGlobalScore(0);
+      addLog("Bienvenido/a al Laboratorio de Ética y Ciberseguridad.", "info");
+      addLog("Empieza por la Misión 1 o cambia de misión con las pestañas.", "info");
+    })();
+  </script>
+</body>
+</html>
