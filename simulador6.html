@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Simulador de Mentalidad Emprendedora</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #020617 0, #000 60%);
+      color: #e5e7eb;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    main {
+      width: 100%;
+      max-width: 960px;
+      margin: 16px;
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      box-shadow: 0 18px 35px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.4);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(90deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.8));
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    header h1 span.icon {
+      font-size: 1.3rem;
+    }
+
+    header .chip {
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(52, 211, 153, 0.9);
+      color: #bbf7d0;
+      background: rgba(22, 163, 74, 0.18);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    #top-info {
+      padding: 10px 16px 6px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+      font-size: 0.78rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    #top-info strong {
+      color: #e5e7eb;
+    }
+
+    #score-box {
+      font-size: 0.78rem;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(56, 189, 248, 0.8);
+      background: rgba(15, 23, 42, 0.96);
+      color: #e0f2fe;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #progress-bar {
+      margin-top: 4px;
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: rgba(15, 23, 42, 1);
+      overflow: hidden;
+    }
+
+    #progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #22d3ee);
+      transition: width 0.2s ease-out;
+    }
+
+    #content {
+      padding: 12px 16px 14px;
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      gap: 12px;
+      min-height: 320px;
+    }
+
+    @media (max-width: 780px) {
+      #content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Columna izquierda: pasos */
+    #steps {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .step-card {
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.96);
+      padding: 8px 10px;
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .step-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .step-title {
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .step-chip {
+      font-size: 0.7rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.96);
+      color: #cbd5f5;
+    }
+
+    .step-chip.done {
+      border-color: rgba(34, 197, 94, 0.9);
+      color: #bbf7d0;
+    }
+
+    .step-question {
+      color: #e5e7eb;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    .option-btn {
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: rgba(15, 23, 42, 0.96);
+      color: #e5e7eb;
+      padding: 6px 8px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      transition: background 0.12s ease, transform 0.08s ease, border 0.12s ease;
+    }
+
+    .option-btn span.icon {
+      margin-top: 1px;
+      font-size: 0.9rem;
+    }
+
+    .option-btn:hover {
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), rgba(15, 23, 42, 0.98));
+      border-color: rgba(56, 189, 248, 0.9);
+      transform: translateY(-1px);
+    }
+
+    .option-btn.selected {
+      border-color: rgba(34, 197, 94, 0.95);
+      background: radial-gradient(circle at top left, rgba(22, 163, 74, 0.22), rgba(15, 23, 42, 0.98));
+    }
+
+    #actions-row {
+      margin-top: 4px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 0.76rem;
+    }
+
+    #actions-row button {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.96);
+      color: #e5e7eb;
+      padding: 5px 10px;
+      font-size: 0.76rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    #actions-row button:hover {
+      background: #020617;
+    }
+
+    /* Columna derecha: idea y feedback */
+    #side-panel {
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.98);
+      padding: 10px 12px;
+      font-size: 0.78rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    #preview-title {
+      font-weight: 600;
+    }
+
+    #idea-preview {
+      font-size: 0.8rem;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+      background: rgba(15, 23, 42, 0.96);
+      min-height: 60px;
+    }
+
+    #feedback-title {
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    #feedback-main {
+      font-size: 0.8rem;
+    }
+
+    #feedback-main.ok {
+      color: #bbf7d0;
+    }
+
+    #feedback-main.mid {
+      color: #facc15;
+    }
+
+    #feedback-main.low {
+      color: #fecaca;
+    }
+
+    #feedback-detail {
+      color: #e5e7eb;
+      font-size: 0.78rem;
+    }
+
+    #feedback-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 2px;
+      font-size: 0.7rem;
+    }
+
+    .tag {
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.96);
+    }
+
+    .tag-good {
+      border-color: rgba(34, 197, 94, 0.9);
+      color: #bbf7d0;
+    }
+
+    .tag-mid {
+      border-color: rgba(250, 204, 21, 0.9);
+      color: #fef3c7;
+    }
+
+    .tag-low {
+      border-color: rgba(248, 113, 113, 0.9);
+      color: #fecaca;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>
+        <span class="icon">🚀</span>
+        Simulador de Mentalidad Emprendedora
+      </h1>
+      <span class="chip">Mentalidad · Procesos · Proyección</span>
+    </header>
+
+    <div id="top-info">
+      <div>
+        <strong>Objetivo:</strong>
+        <span>
+          Construye una idea de emprendimiento aplicando oportunidades, propuesta de valor y gestión ética e innovadora.
+        </span>
+      </div>
+      <div style="min-width: 190px;">
+        <div id="score-box">
+          Índice emprendedor: <span id="score-value">0</span>/100
+        </div>
+        <div id="progress-bar">
+          <div id="progress-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <section id="content">
+      <!-- Pasos -->
+      <section id="steps">
+        <div class="step-card" data-step="1">
+          <div class="step-header">
+            <div class="step-title">
+              <span>🔍</span>
+              <span>1. Detectar una oportunidad</span>
+            </div>
+            <span class="step-chip" id="chip-1">Sin elegir</span>
+          </div>
+          <div class="step-question">
+            ¿En qué tipo de problema quieres enfocar tu idea?
+          </div>
+          <div class="options" id="options-1">
+            <!-- opciones desde JS -->
+          </div>
+        </div>
+
+        <div class="step-card" data-step="2">
+          <div class="step-header">
+            <div class="step-title">
+              <span>💡</span>
+              <span>2. Propuesta de valor</span>
+            </div>
+            <span class="step-chip" id="chip-2">Sin elegir</span>
+          </div>
+          <div class="step-question">
+            ¿Qué tipo de propuesta de valor quieres ofrecer?
+          </div>
+          <div class="options" id="options-2">
+            <!-- opciones desde JS -->
+          </div>
+        </div>
+
+        <div class="step-card" data-step="3">
+          <div class="step-header">
+            <div class="step-title">
+              <span>📈</span>
+              <span>3. Gestión y proyección del proyecto</span>
+            </div>
+            <span class="step-chip" id="chip-3">Sin elegir</span>
+          </div>
+          <div class="step-question">
+            ¿Cómo gestionarías el proyecto en su fase inicial?
+          </div>
+          <div class="options" id="options-3">
+            <!-- opciones desde JS -->
+          </div>
+        </div>
+
+        <div id="actions-row">
+          <button id="btn-evaluate">
+            📊 Evaluar idea emprendedora
+          </button>
+          <button id="btn-reset">
+            🔄 Reiniciar simulador
+          </button>
+        </div>
+      </section>
+
+      <!-- Idea y feedback -->
+      <aside id="side-panel">
+        <div id="preview-title">Vista previa de tu idea</div>
+        <div id="idea-preview">
+          A medida que elijas las opciones, aquí se irá construyendo una descripción corta de tu modelo de emprendimiento.
+        </div>
+
+        <div id="feedback-title">Diagnóstico de mentalidad emprendedora</div>
+        <div id="feedback-main">
+          Elige al menos una opción en cada paso y luego pulsa <strong>“Evaluar idea emprendedora”</strong>.
+        </div>
+        <div id="feedback-detail"></div>
+        <div id="feedback-tags"></div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      // -----------------------
+      // Datos de los pasos
+      // -----------------------
+      const stepsData = {
+        1: [
+          {
+            id: "o1",
+            icon: "🏫",
+            label: "Mejora de la experiencia educativa (tutorías, recursos digitales, acompañamiento).",
+            snippet: "resolver problemas en la experiencia educativa mediante herramientas digitales y acompañamiento cercano",
+            scores: { mindset: 3, creatividad: 2, etica: 3, vision: 3 }
+          },
+          {
+            id: "o2",
+            icon: "🌍",
+            label: "Impacto social y ambiental (reciclaje, inclusión, sostenibilidad).",
+            snippet: "crear soluciones con impacto social y ambiental positivo para su comunidad",
+            scores: { mindset: 3, creatividad: 3, etica: 3, vision: 3 }
+          },
+          {
+            id: "o3",
+            icon: "🎮",
+            label: "Entretenimiento rápido sin pensar mucho en el valor para el usuario.",
+            snippet: "lanzar un producto de entretenimiento rápido sin un problema claro que resolver",
+            scores: { mindset: 1, creatividad: 2, etica: 1, vision: 1 }
+          }
+        ],
+        2: [
+          {
+            id: "v1",
+            icon: "🧭",
+            label: "Propuesta centrada en el problema real del usuario, con beneficios claros y medibles.",
+            snippet: "ofrecer una propuesta centrada en el problema real del usuario, con beneficios claros y medibles",
+            scores: { mindset: 3, creatividad: 2, etica: 3, vision: 3 }
+          },
+          {
+            id: "v2",
+            icon: "⚡",
+            label: "Copiar lo que hace otra empresa pero con un logo diferente.",
+            snippet: "copiar modelos existentes sin mucha diferenciación",
+            scores: { mindset: 1, creatividad: 1, etica: 2, vision: 1 }
+          },
+          {
+            id: "v3",
+            icon: "🎁",
+            label: "Propuesta innovadora que combina tecnología y trato humano cercano.",
+            snippet: "combinar tecnología con un trato humano cercano e innovador",
+            scores: { mindset: 3, creatividad: 3, etica: 3, vision: 2 }
+          }
+        ],
+        3: [
+          {
+            id: "g1",
+            icon: "🧪",
+            label: "Empezar con un proyecto piloto pequeño, probar con usuarios reales y mejorar con su feedback.",
+            snippet: "iniciar con un piloto pequeño, medir resultados y mejorar con feedback constante",
+            scores: { mindset: 3, creatividad: 2, etica: 3, vision: 3 }
+          },
+          {
+            id: "g2",
+            icon: "🏃",
+            label: "Invertir todo el dinero posible desde el inicio sin validar nada.",
+            snippet: "invertir grandes recursos desde el inicio sin validar el modelo",
+            scores: { mindset: 1, creatividad: 1, etica: 2, vision: 1 }
+          },
+          {
+            id: "g3",
+            icon: "🤝",
+            label: "Formar un equipo diverso, distribuir responsabilidades y definir metas claras de corto plazo.",
+            snippet: "gestionar un equipo diverso con metas claras y responsabilidades definidas",
+            scores: { mindset: 3, creatividad: 2, etica: 3, vision: 3 }
+          }
+        ]
+      };
+
+      // -----------------------
+      // Estado del simulador
+      // -----------------------
+      const state = {
+        selections: {
+          1: null,
+          2: null,
+          3: null
+        },
+        score: 0
+      };
+
+      // -----------------------
+      // Referencias DOM
+      // -----------------------
+      const scoreValueEl = document.getElementById("score-value");
+      const progressFill = document.getElementById("progress-fill");
+      const ideaPreviewEl = document.getElementById("idea-preview");
+      const feedbackMainEl = document.getElementById("feedback-main");
+      const feedbackDetailEl = document.getElementById("feedback-detail");
+      const feedbackTagsEl = document.getElementById("feedback-tags");
+
+      const chip1 = document.getElementById("chip-1");
+      const chip2 = document.getElementById("chip-2");
+      const chip3 = document.getElementById("chip-3");
+
+      const btnEvaluate = document.getElementById("btn-evaluate");
+      const btnReset = document.getElementById("btn-reset");
+
+      // -----------------------
+      // Render opciones
+      // -----------------------
+      function renderOptions() {
+        [1, 2, 3].forEach(step => {
+          const container = document.getElementById("options-" + step);
+          container.innerHTML = "";
+          stepsData[step].forEach(opt => {
+            const btn = document.createElement("button");
+            btn.className = "option-btn";
+            btn.dataset.step = step.toString();
+            btn.dataset.id = opt.id;
+            btn.innerHTML = `<span class="icon">${opt.icon}</span><span>${opt.label}</span>`;
+            btn.addEventListener("click", () => handleOptionClick(step, opt.id, btn));
+            container.appendChild(btn);
+          });
+        });
+      }
+
+      function handleOptionClick(step, optionId, button) {
+        state.selections[step] = optionId;
+
+        // marcar seleccionado visualmente
+        const container = document.getElementById("options-" + step);
+        const allBtns = container.querySelectorAll(".option-btn");
+        allBtns.forEach(b => b.classList.remove("selected"));
+        button.classList.add("selected");
+
+        // actualizar chip
+        const chip = step === 1 ? chip1 : step === 2 ? chip2 : chip3;
+        chip.textContent = "Elegido";
+        chip.classList.add("done");
+
+        updateProgress();
+        updatePreview();
+        resetFeedback();
+      }
+
+      function updateProgress() {
+        const totalSteps = 3;
+        const done = Object.values(state.selections).filter(v => v !== null).length;
+        const percent = (done / totalSteps) * 100;
+        progressFill.style.width = percent + "%";
+      }
+
+      function updatePreview() {
+        const parts = [];
+
+        const sel1 = state.selections[1]
+          ? stepsData[1].find(o => o.id === state.selections[1])
+          : null;
+        const sel2 = state.selections[2]
+          ? stepsData[2].find(o => o.id === state.selections[2])
+          : null;
+        const sel3 = state.selections[3]
+          ? stepsData[3].find(o => o.id === state.selections[3])
+          : null;
+
+        if (sel1) parts.push(sel1.snippet);
+        if (sel2) parts.push(sel2.snippet);
+        if (sel3) parts.push(sel3.snippet);
+
+        if (parts.length === 0) {
+          ideaPreviewEl.textContent =
+            "A medida que elijas las opciones, aquí se irá construyendo una descripción corta de tu modelo de emprendimiento.";
+        } else {
+          ideaPreviewEl.textContent =
+            "Tu idea actual busca " +
+            parts.join(", y ") +
+            ". Puedes seguir ajustando las opciones para refinar tu propuesta.";
+        }
+      }
+
+      function resetFeedback() {
+        feedbackMainEl.textContent =
+          "Cuando completes los tres pasos, pulsa “Evaluar idea emprendedora” para ver el diagnóstico.";
+        feedbackMainEl.classList.remove("ok", "mid", "low");
+        feedbackDetailEl.textContent = "";
+        feedbackTagsEl.innerHTML = "";
+      }
+
+      // -----------------------
+      // Evaluar idea
+      // -----------------------
+      function evaluateIdea() {
+        const sel = state.selections;
+        if (!sel[1] || !sel[2] || !sel[3]) {
+          feedbackMainEl.textContent =
+            "Aún falta completar uno o más pasos. Elige una opción en cada sección antes de evaluar.";
+          feedbackMainEl.classList.add("low");
+          feedbackDetailEl.textContent = "";
+          feedbackTagsEl.innerHTML = "";
+          return;
+        }
+
+        // sumar puntajes
+        let totals = { mindset: 0, creatividad: 0, etica: 0, vision: 0 };
+
+        [1, 2, 3].forEach(step => {
+          const dataArray = stepsData[step];
+          const chosen = dataArray.find(o => o.id === sel[step]);
+          if (chosen) {
+            totals.mindset += chosen.scores.mindset;
+            totals.creatividad += chosen.scores.creatividad;
+            totals.etica += chosen.scores.etica;
+            totals.vision += chosen.scores.vision;
+          }
+        });
+
+        // máximo posible por dimensión: 3 pasos * 3 puntos = 9
+        const maxDim = 9;
+        const totalScore =
+          ((totals.mindset +
+            totals.creatividad +
+            totals.etica +
+            totals.vision) /
+            (maxDim * 4)) *
+          100;
+        const scoreRounded = Math.round(totalScore);
+
+        state.score = scoreRounded;
+        scoreValueEl.textContent = scoreRounded.toString();
+
+        // feedback principal
+        feedbackMainEl.classList.remove("ok", "mid", "low");
+        if (scoreRounded >= 80) {
+          feedbackMainEl.textContent =
+            "Tu idea muestra una mentalidad emprendedora sólida, con buena proyección.";
+          feedbackMainEl.classList.add("ok");
+        } else if (scoreRounded >= 50) {
+          feedbackMainEl.textContent =
+            "Tu idea tiene bases interesantes, pero aún hay espacio para fortalecerla.";
+          feedbackMainEl.classList.add("mid");
+        } else {
+          feedbackMainEl.textContent =
+            "Tu idea es un buen inicio, pero requiere más trabajo en oportunidad, valor y gestión.";
+          feedbackMainEl.classList.add("low");
+        }
+
+        // feedback detallado por dimensión
+        const comentarios = [];
+
+        if (totals.mindset >= 7) {
+          comentarios.push(
+            "Estás pensando como emprendedor: ves problemas como oportunidades y muestras iniciativa."
+          );
+        } else if (totals.mindset >= 5) {
+          comentarios.push(
+            "Tu mentalidad emprendedora va en camino, pero podrías asumir un poco más de iniciativa y responsabilidad."
+          );
+        } else {
+          comentarios.push(
+            "Refuerza tu mentalidad emprendedora: pasa de la queja a la propuesta de soluciones concretas."
+          );
+        }
+
+        if (totals.creatividad >= 7) {
+          comentarios.push(
+            "Tu propuesta incorpora creatividad e innovación, combinando elementos de forma original."
+          );
+        } else if (totals.creatividad >= 5) {
+          comentarios.push(
+            "Tu idea tiene algunos elementos creativos. Puedes explorar nuevas formas de diferenciarte."
+          );
+        } else {
+          comentarios.push(
+            "La parte creativa es baja. Pregúntate: ¿qué haría mi solución realmente distinta a las demás?"
+          );
+        }
+
+        if (totals.etica >= 7) {
+          comentarios.push(
+            "La ética está presente: respetas a las personas, evitas prácticas dudosas y cuidas el impacto."
+          );
+        } else if (totals.etica >= 5) {
+          comentarios.push(
+            "Hay intención ética, pero revisa si todas tus decisiones cuidarían realmente a usuarios y comunidad."
+          );
+        } else {
+          comentarios.push(
+            "Atención a la ética: evita decisiones que dañen a otros, aunque parezcan más rápidas o rentables."
+          );
+        }
+
+        if (totals.vision >= 7) {
+          comentarios.push(
+            "Tienes buena visión estratégica: piensas en validar, medir y hacer crecer el proyecto paso a paso."
+          );
+        } else if (totals.vision >= 5) {
+          comentarios.push(
+            "Tu visión es razonable, pero podrías planificar mejor cómo validar y escalar tu proyecto."
+          );
+        } else {
+          comentarios.push(
+            "Te falta estructura estratégica. Piensa en pilotos pequeños, métricas y un plan de crecimiento."
+          );
+        }
+
+        feedbackDetailEl.innerHTML = comentarios.join(" ");
+
+        // tags visuales
+        feedbackTagsEl.innerHTML = "";
+        const tagData = [
+          { key: "mindset", label: "Mentalidad emprendedora", value: totals.mindset },
+          { key: "creatividad", label: "Creatividad e innovación", value: totals.creatividad },
+          { key: "etica", label: "Ética y responsabilidad", value: totals.etica },
+          { key: "vision", label: "Visión estratégica / gestión", value: totals.vision }
+        ];
+
+        tagData.forEach(t => {
+          const span = document.createElement("span");
+          span.className = "tag";
+          if (t.value >= 7) {
+            span.classList.add("tag-good");
+          } else if (t.value >= 5) {
+            span.classList.add("tag-mid");
+          } else {
+            span.classList.add("tag-low");
+          }
+          span.textContent = `${t.label}`;
+          feedbackTagsEl.appendChild(span);
+        });
+      }
+
+      // -----------------------
+      // Reset simulador
+      // -----------------------
+      function resetSimulator() {
+        state.selections = { 1: null, 2: null, 3: null };
+        state.score = 0;
+        scoreValueEl.textContent = "0";
+        progressFill.style.width = "0%";
+
+        chip1.textContent = "Sin elegir";
+        chip2.textContent = "Sin elegir";
+        chip3.textContent = "Sin elegir";
+        chip1.classList.remove("done");
+        chip2.classList.remove("done");
+        chip3.classList.remove("done");
+
+        renderOptions();
+        updatePreview();
+        resetFeedback();
+      }
+
+      // -----------------------
+      // Eventos
+      // -----------------------
+      btnEvaluate.addEventListener("click", evaluateIdea);
+      btnReset.addEventListener("click", resetSimulator);
+
+      // Inicializar
+      renderOptions();
+      updatePreview();
+      resetFeedback();
+    })();
+  </script>
+</body>
+</html>
