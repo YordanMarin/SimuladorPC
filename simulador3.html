@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Simulador de Amenazas Digitales</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: #e5e7eb;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    main {
+      width: 100%;
+      max-width: 1100px;
+      margin: 16px;
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      padding: 16px 20px 10px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    header h1 span.chip {
+      font-size: 0.7rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(248, 250, 252, 0.06);
+      color: #e5e7eb;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    #controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #020617;
+      color: #e5e7eb;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease;
+    }
+
+    button span.icon {
+      font-size: 0.9rem;
+    }
+
+    button:hover {
+      background: #0b1120;
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.6);
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0) scale(0.98);
+      box-shadow: none;
+    }
+
+    .badge {
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      color: #e5e7eb;
+      white-space: nowrap;
+    }
+
+    .badge-ok {
+      background: rgba(22, 163, 74, 0.12);
+      border-color: rgba(34, 197, 94, 0.9);
+      color: #bbf7d0;
+      animation: parpadeoListo 1s ease-in-out infinite;
+    }
+
+    @keyframes parpadeoListo {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.3); }
+      50% { box-shadow: 0 0 0 6px rgba(22, 163, 74, 0); }
+    }
+
+    #layout {
+      display: grid;
+      grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+      flex: 1;
+      min-height: 420px;
+    }
+
+    #panel-izq {
+      border-right: 1px solid rgba(148, 163, 184, 0.2);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 55%);
+    }
+
+    #panel-der {
+      padding: 14px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    h2 {
+      font-size: 0.9rem;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #94a3b8;
+    }
+
+    #estado {
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    #progreso-linea {
+      position: relative;
+      width: 100%;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 1);
+      overflow: hidden;
+      border: 1px solid rgba(51, 65, 85, 0.9);
+    }
+
+    #progreso-barra {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #22d3ee);
+      transition: width 0.2s ease-out;
+    }
+
+    #mensaje-principal {
+      font-size: 0.78rem;
+      color: #9ca3af;
+    }
+
+    #estadisticas {
+      font-size: 0.78rem;
+      color: #cbd5f5;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    #estadisticas span {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+    }
+
+    #lista-escenarios {
+      margin-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 280px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .escenario {
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      transition: background 0.12s ease, border 0.12s ease, transform 0.08s ease;
+    }
+
+    .escenario:hover {
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), rgba(15, 23, 42, 0.98));
+      border-color: rgba(56, 189, 248, 0.9);
+      transform: translateY(-1px);
+    }
+
+    .escenario-activo {
+      background: radial-gradient(circle at top left, rgba(96, 165, 250, 0.18), rgba(15, 23, 42, 0.98));
+      border-color: rgba(96, 165, 250, 0.9);
+      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.9);
+    }
+
+    .escenario-resuelto {
+      border-color: rgba(34, 197, 94, 0.9);
+      background: radial-gradient(circle at top left, rgba(22, 163, 74, 0.18), rgba(15, 23, 42, 0.98));
+    }
+
+    .escenario-icono {
+      font-size: 1.2rem;
+      margin-top: 2px;
+    }
+
+    .escenario-textos {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .escenario-titulo {
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
+    .escenario-tags {
+      font-size: 0.7rem;
+      color: #9ca3af;
+    }
+
+    #tips {
+      font-size: 0.75rem;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px dashed rgba(148, 163, 184, 0.6);
+      color: #9ca3af;
+      margin-top: 6px;
+    }
+
+    #tips span.icon {
+      margin-right: 6px;
+    }
+
+    /* Panel derecho */
+
+    #detalle-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #detalle-encabezado {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #detalle-encabezado small {
+      font-size: 0.72rem;
+      color: #9ca3af;
+    }
+
+    #detalle-escenario {
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.22), rgba(15, 23, 42, 0.98));
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      min-height: 170px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.82rem;
+    }
+
+    #detalle-titulo {
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #detalle-descripcion {
+      color: #e5e7eb;
+      line-height: 1.35;
+    }
+
+    #detalle-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 0.72rem;
+    }
+
+    .badge-mini {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+    }
+
+    .badge-fake {
+      background: rgba(239, 68, 68, 0.18);
+      border-color: rgba(248, 113, 113, 0.9);
+      color: #fecaca;
+    }
+
+    #riesgo-botones {
+      margin-top: 4px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn-riesgo {
+      flex: 1;
+      min-width: 120px;
+      justify-content: center;
+      border-radius: 10px;
+    }
+
+    .btn-riesgo[data-nivel="bajo"] {
+      border-color: rgba(34, 197, 94, 0.8);
+    }
+
+    .btn-riesgo[data-nivel="medio"] {
+      border-color: rgba(250, 204, 21, 0.9);
+    }
+
+    .btn-riesgo[data-nivel="alto"] {
+      border-color: rgba(248, 113, 113, 0.9);
+    }
+
+    .btn-riesgo-desactivado {
+      opacity: 0.6;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    #resultado {
+      border-radius: 12px;
+      padding: 8px 10px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid rgba(75, 85, 99, 0.9);
+      font-size: 0.78rem;
+      min-height: 90px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    #resultado-linea {
+      font-weight: 600;
+    }
+
+    #resultado-linea.ok {
+      color: #bbf7d0;
+    }
+
+    #resultado-linea.error {
+      color: #fecaca;
+    }
+
+    #resultado-explicacion {
+      color: #e5e7eb;
+    }
+
+    #resultado-proteccion {
+      color: #bfdbfe;
+    }
+
+    #panel-mensajes {
+      margin-top: 2px;
+      border-radius: 12px;
+      padding: 8px 10px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      font-size: 0.76rem;
+      max-height: 130px;
+      overflow-y: auto;
+    }
+
+    #panel-mensajes .mensaje {
+      margin-bottom: 4px;
+      line-height: 1.35;
+    }
+
+    #panel-mensajes .mensaje small {
+      color: #6b7280;
+      font-size: 0.68rem;
+    }
+
+    #panel-mensajes .mensaje-ok {
+      color: #bbf7d0;
+    }
+
+    #panel-mensajes .mensaje-error {
+      color: #fecaca;
+    }
+
+    #panel-mensajes .mensaje-info {
+      color: #bfdbfe;
+    }
+
+    @media (max-width: 820px) {
+      #layout {
+        grid-template-columns: 1fr;
+      }
+      #panel-izq {
+        border-right: none;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+      }
+      main {
+        margin: 8px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      #controls {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>
+        🛡️ Simulador de Amenazas Digitales
+        <span class="chip">Radar de riesgos</span>
+      </h1>
+      <div id="controls">
+        <span id="estado-pasos" class="badge">
+          Casos resueltos: <span id="resueltos-num">0</span>/<span id="total-num">0</span>
+        </span>
+        <button id="btn-sugerir" type="button">
+          <span class="icon">🎯</span>
+          Sugerir siguiente caso
+        </button>
+        <button id="btn-reiniciar" type="button">
+          <span class="icon">🔄</span>
+          Reiniciar simulación
+        </button>
+      </div>
+    </header>
+
+    <section id="layout">
+      <!-- Panel izquierdo: lista de escenarios y estado -->
+      <aside id="panel-izq">
+        <h2>Amenazas y situaciones</h2>
+        <div id="estado">
+          <span>Haz clic en un caso, lee la situación y selecciona el nivel de riesgo.</span>
+          <div id="progreso-linea">
+            <div id="progreso-barra"></div>
+          </div>
+          <div id="estadisticas">
+            <span id="stat-aciertos">✅ Aciertos: 0</span>
+            <span id="stat-errores">⚠️ Intentos fallidos: 0</span>
+          </div>
+          <span id="mensaje-principal"></span>
+        </div>
+
+        <div id="lista-escenarios">
+          <!-- Se llena desde JS -->
+        </div>
+
+        <div id="tips">
+          <span class="icon">💡</span>
+          Recuerda sospechar de:
+          <strong>urgencias exageradas, premios mágicos, enlaces raros, remitentes desconocidos, errores de ortografía</strong> y mensajes que piden datos personales o dinero.
+        </div>
+      </aside>
+
+      <!-- Panel derecho: detalle del escenario, botones de riesgo y explicación -->
+      <section id="panel-der">
+        <div id="detalle-wrapper">
+          <div id="detalle-encabezado">
+            <h2>Evaluación de riesgos y falsificaciones</h2>
+            <small>Clasifica la situación, descubre el nivel de riesgo y aprende cómo protegerte.</small>
+          </div>
+
+          <div id="detalle-escenario">
+            <div id="detalle-titulo">
+              <span>👀 Selecciona un caso en la lista para empezar.</span>
+            </div>
+            <div id="detalle-descripcion">
+              Verás aquí la descripción completa del escenario de amenaza digital.
+            </div>
+            <div id="detalle-badges">
+              <!-- Se llenan dinámicamente -->
+            </div>
+
+            <div id="riesgo-botones">
+              <button class="btn-riesgo btn-riesgo-desactivado" data-nivel="bajo">
+                ✅ Bajo riesgo
+              </button>
+              <button class="btn-riesgo btn-riesgo-desactivado" data-nivel="medio">
+                🤔 Sospechoso
+              </button>
+              <button class="btn-riesgo btn-riesgo-desactivado" data-nivel="alto">
+                🚨 Alta amenaza / Falsificación
+              </button>
+            </div>
+          </div>
+
+          <div id="resultado">
+            <div id="resultado-linea">Resultado de la evaluación…</div>
+            <div id="resultado-explicacion"></div>
+            <div id="resultado-proteccion"></div>
+          </div>
+
+          <div id="panel-mensajes">
+            <!-- Mensajes dinámicos -->
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      // -------------------------
+      // Datos de los escenarios
+      // -------------------------
+      const escenarios = [
+        {
+          id: 1,
+          icono: "📧",
+          titulo: "Correo de banco con enlace extraño",
+          categoria: "Phishing",
+          riesgo: "alto",
+          falsificacion: true,
+          descripcion:
+            "Recibes un correo que aparenta ser de tu banco. Dice que tu cuenta será bloqueada hoy si no 'verificas tus datos' en un enlace. El remitente tiene una dirección rara y el enlace no parece del dominio oficial.",
+          explicacion:
+            "Este es un ejemplo típico de phishing. Usan urgencia y miedo para que hagas clic y entregues tus credenciales en una página falsa.",
+          proteccion:
+            "No hagas clic en enlaces de correos sospechosos. Entra a la web oficial escribiendo tú mismo la dirección o usando la app del banco. Verifica el remitente y reporta el correo como phishing.",
+          resolucion:
+            "Marca el correo como spam/phishing en tu bandeja y elimina el mensaje. Si crees que hiciste clic y diste datos, cambia tus contraseñas y contacta al banco."
+        },
+        {
+          id: 2,
+          icono: "📶",
+          titulo: "WiFi público sin contraseña",
+          categoria: "Red insegura",
+          riesgo: "medio",
+          falsificacion: false,
+          descripcion:
+            "Estás en un centro comercial y encuentras una red WiFi abierta llamada 'FREE_WIFI_MALL'. No tiene contraseña y muchas personas parecen usarla.",
+          explicacion:
+            "Las redes WiFi abiertas permiten que otros usuarios (o el dueño del punto de acceso) puedan espiar el tráfico si no está cifrado.",
+          proteccion:
+            "Evita acceder a banca, correo o información sensible en redes abiertas. Si necesitas usarlas, usa una VPN y asegúrate de que las webs tengan HTTPS.",
+          resolucion:
+            "Usa datos móviles para operaciones sensibles y limita el uso del WiFi público a navegación general poco crítica."
+        },
+        {
+          id: 3,
+          icono: "🔐",
+          titulo: "Contraseña reutilizada en muchas cuentas",
+          categoria: "Gestión de contraseñas",
+          riesgo: "alto",
+          falsificacion: false,
+          descripcion:
+            "Una persona usa la misma contraseña simple (nombre+123) para su correo, redes sociales y banca en línea.",
+          explicacion:
+            "Si una sola web se ve comprometida, esa contraseña puede ser probada automáticamente en otros servicios (ataque de relleno de credenciales).",
+          proteccion:
+            "Usa contraseñas largas y únicas para cada servicio, preferiblemente gestionadas con un gestor de contraseñas. Activa también la verificación en dos pasos.",
+          resolucion:
+            "Cambia las contraseñas por otras más fuertes y únicas. Activa 2FA donde sea posible."
+        },
+        {
+          id: 4,
+          icono: "📰",
+          titulo: "Noticia viral sin fuente confiable",
+          categoria: "Noticia falsa",
+          riesgo: "alto",
+          falsificacion: true,
+          descripcion:
+            "Te llega por chat una imagen con texto que dice que mañana se cerrarán todos los bancos y que retires tu dinero ya. No hay enlace a un medio oficial y el mensaje está lleno de mayúsculas y emojis alarmantes.",
+          explicacion:
+            "Es muy probable que sea desinformación o noticia falsa diseñada para causar pánico.",
+          proteccion:
+            "Antes de compartir, verifica la información en medios oficiales, páginas de instituciones o verificadores de noticias. Desconfía de mensajes alarmistas sin fuentes.",
+          resolucion:
+            "No compartas la noticia. Busca información en sitios oficiales y, si confirmas que es falsa, avisa a quien te la envió."
+        },
+        {
+          id: 5,
+          icono: "🎥",
+          titulo: "Video 'deepfake' de una figura pública",
+          categoria: "Deepfake / suplantación",
+          riesgo: "alto",
+          falsificacion: true,
+          descripcion:
+            "Ves un video en redes donde una figura pública parece decir algo muy polémico. El movimiento de la boca se ve ligeramente desfasado y la publicación viene de una cuenta poco conocida.",
+          explicacion:
+            "Los deepfakes permiten manipular audio y video para hacer creer que alguien dijo o hizo algo que nunca ocurrió.",
+          proteccion:
+            "Busca la noticia en medios confiables. Revisa si la persona o instituciones oficiales han publicado aclaraciones. Observa detalles visuales raros en el video.",
+          resolucion:
+            "No difundas el video hasta verificarlo. Reporta el contenido si confirmas que es falso o malicioso."
+        },
+        {
+          id: 6,
+          icono: "📱",
+          titulo: "Aplicación que pide demasiados permisos",
+          categoria: "Apps móviles",
+          riesgo: "medio",
+          falsificacion: false,
+          descripcion:
+            "Instalas una app de linterna que pide permisos para acceder a tus contactos, cámara, micrófono y ubicación en todo momento.",
+          explicacion:
+            "Pedir permisos innecesarios puede indicar que la app quiere recopilar más datos de los que necesita.",
+          proteccion:
+            "Descarga solo apps de desarrolladores confiables, revisa reseñas, limita los permisos y desinstala apps que no uses o que pidan acceso excesivo.",
+          resolucion:
+            "Revisa y ajusta los permisos de la app o desinstálala si no es necesaria."
+        },
+        {
+          id: 7,
+          icono: "💾",
+          titulo: "USB desconocido encontrado en el suelo",
+          categoria: "Malware / Ingeniería social",
+          riesgo: "alto",
+          falsificacion: false,
+          descripcion:
+            "Encuentras una memoria USB en el estacionamiento de tu centro de estudios. Piensas conectarla para ver de quién es.",
+          explicacion:
+            "Los USB pueden estar preparados con malware que se ejecuta automáticamente al conectarse a una computadora vulnerable.",
+          proteccion:
+            "No conectes dispositivos desconocidos a tu equipo. Entrégalo al área de seguridad o informática para que lo gestionen de forma segura.",
+          resolucion:
+            "Evita usar el USB en tu propio dispositivo. Si ya lo conectaste, analiza el equipo con antivirus y consulta al área técnica."
+        },
+        {
+          id: 8,
+          icono: "🛒",
+          titulo: "Tienda online con descuentos irreales",
+          categoria: "Fraude / tienda falsa",
+          riesgo: "alto",
+          falsificacion: true,
+          descripcion:
+            "Encuentras una tienda online en redes sociales que vende dispositivos muy caros a precios ridículamente bajos. Solo acepta pago por transferencia directa y no tiene datos de contacto claros.",
+          explicacion:
+            "Se trata de un patrón típico de tiendas falsas que cobran y nunca envían el producto.",
+          proteccion:
+            "Compara opiniones en otras fuentes, revisa si la web aparece en listas de fraude, verifica datos de contacto reales y desconfía de ofertas demasiado buenas.",
+          resolucion:
+            "No realices pagos. Si alguien cercano ya pagó, recomienda contactar al banco para intentar detener la operación o denunciar."
+        },
+        {
+          id: 9,
+          icono: "👤",
+          titulo: "Solicitud de amistad de perfil casi vacío",
+          categoria: "Redes sociales",
+          riesgo: "medio",
+          falsificacion: posible = true,
+          falsificacion: true,
+          descripcion:
+            "En una red social te llega una solicitud de amistad de un perfil sin foto real, con muy pocas publicaciones y casi sin amigos en común.",
+          explicacion:
+            "Puede ser una cuenta falsa usada para obtener tu información, enviar spam o intentar estafas.",
+          proteccion:
+            "No aceptes solicitudes de personas que no conoces. Revisa si tienen actividad real y amigos en común, o ignora/bloquea la solicitud.",
+          resolucion:
+            "No compartas datos personales con cuentas dudosas. Revisa tu configuración de privacidad para limitar quién ve tu información."
+        },
+        {
+          id: 10,
+          icono: "✅",
+          titulo: "Actualización desde la web oficial",
+          categoria: "Buena práctica",
+          riesgo: "bajo",
+          falsificacion: false,
+          descripcion:
+            "Recibes una notificación en el navegador indicando que hay una nueva versión. Te lleva a la página oficial del desarrollador, con certificado HTTPS válido.",
+          explicacion:
+            "Actualizar software desde la fuente oficial es una buena práctica de seguridad.",
+          proteccion:
+            "Mantén tus aplicaciones y sistema operativo actualizados desde canales oficiales, evitando enlaces de terceros sospechosos.",
+          resolucion:
+            "Revisa que la URL sea realmente la oficial y realiza la actualización normalmente."
+        }
+      ];
+
+      // -------------------------
+      // Referencias a elementos
+      // -------------------------
+      const listaEscenarios = document.getElementById("lista-escenarios");
+      const mensajePrincipal = document.getElementById("mensaje-principal");
+      const progresoBarra = document.getElementById("progreso-barra");
+      const statAciertos = document.getElementById("stat-aciertos");
+      const statErrores = document.getElementById("stat-errores");
+      const resueltosNum = document.getElementById("resueltos-num");
+      const totalNum = document.getElementById("total-num");
+      const estadoPasos = document.getElementById("estado-pasos");
+
+      const detalleTitulo = document.getElementById("detalle-titulo");
+      const detalleDescripcion = document.getElementById("detalle-descripcion");
+      const detalleBadges = document.getElementById("detalle-badges");
+      const botonesRiesgo = Array.from(document.querySelectorAll(".btn-riesgo"));
+
+      const resultadoLinea = document.getElementById("resultado-linea");
+      const resultadoExplicacion = document.getElementById("resultado-explicacion");
+      const resultadoProteccion = document.getElementById("resultado-proteccion");
+
+      const panelMensajes = document.getElementById("panel-mensajes");
+
+      const btnReiniciar = document.getElementById("btn-reiniciar");
+      const btnSugerir = document.getElementById("btn-sugerir");
+
+      // -------------------------
+      // Estado de la simulación
+      // -------------------------
+      const estado = {
+        seleccionadoId: null,
+        resueltos: new Set(),
+        aciertos: 0,
+        errores: 0
+      };
+
+      totalNum.textContent = escenarios.length.toString();
+
+      const mensajesInicio = [
+        "Selecciona un caso de la lista y analiza qué tan peligroso es.",
+        "Piensa siempre: ¿Quién me envía esto? ¿Qué quiere que haga?",
+        "Reconocer el riesgo es el primer paso de la protección digital."
+      ];
+
+      const mensajesCorrecto = [
+        "Muy bien, tu radar digital está afinado 🧭.",
+        "Buen análisis, has detectado correctamente el riesgo.",
+        "Excelente, así se detectan amenazas digitales.",
+        "¡Eso es! Una mente crítica es tu mejor antivirus 🧠."
+      ];
+
+      const mensajesError = [
+        "Casi… vuelve a leer las pistas del escenario.",
+        "Piensa: ¿qué podría salir mal si confío en esto?",
+        "Analiza el remitente, la urgencia y lo que te piden.",
+        "Revisa si hay señales de falsificación o exceso de confianza."
+      ];
+
+      const mensajesFinal = [
+        "Has revisado todos los casos. ¡Tu nivel de conciencia digital subió de nivel! 🏆",
+        "Simulación completada. Sigues construyendo un buen escudo digital 💪.",
+        "Muy bien, has practicado detección de riesgos y falsificaciones ⭐."
+      ];
+
+      function elegirMensaje(lista) {
+        return lista[Math.floor(Math.random() * lista.length)];
+      }
+
+      function agregarMensajeLog(texto, tipo = "info") {
+        const div = document.createElement("div");
+        div.classList.add("mensaje");
+        if (tipo === "ok") div.classList.add("mensaje-ok");
+        if (tipo === "error") div.classList.add("mensaje-error");
+        if (tipo === "info") div.classList.add("mensaje-info");
+
+        const iconos = {
+          info: "💬",
+          ok: "✅",
+          error: "⚠️"
+        };
+
+        const icono = iconos[tipo] || "💬";
+        const ahora = new Date();
+        const hora = ahora.toLocaleTimeString("es-PE", {
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+
+        div.innerHTML = `<strong>${icono}</strong> ${texto} <small>(${hora})</small>`;
+        panelMensajes.prepend(div);
+      }
+
+      // -------------------------
+      // Render de la lista
+      // -------------------------
+      function renderListaEscenarios() {
+        listaEscenarios.innerHTML = "";
+
+        escenarios.forEach(esc => {
+          const item = document.createElement("div");
+          item.className = "escenario";
+          if (estado.resueltos.has(esc.id)) {
+            item.classList.add("escenario-resuelto");
+          }
+          item.dataset.id = esc.id.toString();
+
+          const icono = document.createElement("div");
+          icono.className = "escenario-icono";
+          icono.textContent = esc.icono;
+
+          const textos = document.createElement("div");
+          textos.className = "escenario-textos";
+
+          const titulo = document.createElement("div");
+          titulo.className = "escenario-titulo";
+          titulo.textContent = esc.titulo;
+
+          const tags = document.createElement("div");
+          tags.className = "escenario-tags";
+          const etiquetaFake = esc.falsificacion ? "Posible falsificación" : "Riesgo digital";
+          tags.textContent = `${esc.categoria} · ${etiquetaFake}`;
+
+          textos.appendChild(titulo);
+          textos.appendChild(tags);
+
+          item.appendChild(icono);
+          item.appendChild(textos);
+
+          item.addEventListener("click", () => {
+            seleccionarEscenario(esc.id);
+          });
+
+          listaEscenarios.appendChild(item);
+        });
+      }
+
+      function marcarEscenarioActivo(id) {
+        const items = Array.from(document.querySelectorAll(".escenario"));
+        items.forEach(el => {
+          el.classList.remove("escenario-activo");
+          const escId = parseInt(el.dataset.id, 10);
+          if (escId === id) {
+            el.classList.add("escenario-activo");
+          }
+        });
+      }
+
+      // -------------------------
+      // Mostrar detalle de escenario
+      // -------------------------
+      function seleccionarEscenario(id) {
+        estado.seleccionadoId = id;
+        const esc = escenarios.find(e => e.id === id);
+        if (!esc) return;
+
+        marcarEscenarioActivo(id);
+
+        detalleTitulo.innerHTML = `${esc.icono} <span>${esc.titulo}</span>`;
+        detalleDescripcion.textContent = esc.descripcion;
+
+        detalleBadges.innerHTML = "";
+        const badgeCat = document.createElement("span");
+        badgeCat.className = "badge-mini";
+        badgeCat.textContent = `Categoría: ${esc.categoria}`;
+
+        const badgeNivel = document.createElement("span");
+        badgeNivel.className = "badge-mini";
+        const textoNivel =
+          esc.riesgo === "bajo"
+            ? "Riesgo esperado: Bajo"
+            : esc.riesgo === "medio"
+            ? "Riesgo esperado: Medio"
+            : "Riesgo esperado: Alto";
+        badgeNivel.textContent = textoNivel;
+
+        detalleBadges.appendChild(badgeCat);
+        detalleBadges.appendChild(badgeNivel);
+
+        if (esc.falsificacion) {
+          const badgeFake = document.createElement("span");
+          badgeFake.className = "badge-mini badge-fake";
+          badgeFake.textContent = "Incluye posible falsificación / engaño";
+          detalleBadges.appendChild(badgeFake);
+        }
+
+        // Activar botones de riesgo
+        botonesRiesgo.forEach(btn => {
+          btn.classList.remove("btn-riesgo-desactivado");
+        });
+
+        resultadoLinea.textContent = "Elige un nivel de riesgo para este caso…";
+        resultadoLinea.classList.remove("ok", "error");
+        resultadoExplicacion.textContent = "";
+        resultadoProteccion.textContent = "";
+
+        agregarMensajeLog(
+          `Analizando caso: "${esc.titulo}". Clasifica su nivel de riesgo.`,
+          "info"
+        );
+      }
+
+      // -------------------------
+      // Evaluar respuesta
+      // -------------------------
+      function evaluarRiesgo(nivelElegido) {
+        if (estado.seleccionadoId === null) {
+          agregarMensajeLog("Primero selecciona un caso de la lista.", "error");
+          return;
+        }
+
+        const esc = escenarios.find(e => e.id === estado.seleccionadoId);
+        if (!esc) return;
+
+        const acierto = esc.riesgo === nivelElegido;
+
+        if (acierto) {
+          estado.aciertos++;
+          estado.resueltos.add(esc.id);
+          resultadoLinea.textContent = elegirMensaje(mensajesCorrecto);
+          resultadoLinea.classList.remove("error");
+          resultadoLinea.classList.add("ok");
+
+          resultadoExplicacion.textContent = esc.explicacion;
+          resultadoProteccion.textContent =
+            "Cómo protegerte / resolver el problema: " + esc.proteccion + " " + esc.resolucion;
+
+          agregarMensajeLog(`Has clasificado correctamente el caso: "${esc.titulo}".`, "ok");
+        } else {
+          estado.errores++;
+          resultadoLinea.textContent = elegirMensaje(mensajesError);
+          resultadoLinea.classList.remove("ok");
+          resultadoLinea.classList.add("error");
+
+          resultadoExplicacion.textContent =
+            "Pista: vuelve a leer la situación y pregúntate qué podría salir mal.";
+          resultadoProteccion.textContent =
+            "Recuerda revisar el remitente, la urgencia, los datos que te piden y si la fuente es confiable.";
+
+          agregarMensajeLog(
+            `La clasificación para "${esc.titulo}" no es la más adecuada. Intenta de nuevo.`,
+            "error"
+          );
+        }
+
+        actualizarEstadoGlobal();
+        renderListaEscenarios();
+
+        if (estado.resueltos.size === escenarios.length) {
+          mensajePrincipal.textContent = elegirMensaje(mensajesFinal);
+          estadoPasos.classList.add("badge-ok");
+        }
+      }
+
+      // -------------------------
+      // Actualizar estado global
+      // -------------------------
+      function actualizarEstadoGlobal() {
+        resueltosNum.textContent = estado.resueltos.size.toString();
+        statAciertos.textContent = `✅ Aciertos: ${estado.aciertos}`;
+        statErrores.textContent = `⚠️ Intentos fallidos: ${estado.errores}`;
+
+        const porcentaje = (estado.resueltos.size / escenarios.length) * 100;
+        progresoBarra.style.width = porcentaje + "%";
+
+        if (estado.resueltos.size === 0) {
+          mensajePrincipal.textContent = elegirMensaje(mensajesInicio);
+          estadoPasos.classList.remove("badge-ok");
+        } else if (estado.resueltos.size < escenarios.length) {
+          mensajePrincipal.textContent =
+            "Sigue analizando casos para mejorar tu evaluación de riesgos digitales.";
+        }
+      }
+
+      // -------------------------
+      // Reiniciar simulación
+      // -------------------------
+      function reiniciarSimulacion() {
+        estado.seleccionadoId = null;
+        estado.resueltos = new Set();
+        estado.aciertos = 0;
+        estado.errores = 0;
+
+        progresoBarra.style.width = "0%";
+        resueltosNum.textContent = "0";
+        statAciertos.textContent = "✅ Aciertos: 0";
+        statErrores.textContent = "⚠️ Intentos fallidos: 0";
+        mensajePrincipal.textContent = elegirMensaje(mensajesInicio);
+        estadoPasos.classList.remove("badge-ok");
+
+        detalleTitulo.innerHTML = '<span>👀 Selecciona un caso en la lista para empezar.</span>';
+        detalleDescripcion.textContent =
+          "Verás aquí la descripción completa del escenario de amenaza digital.";
+        detalleBadges.innerHTML = "";
+        botonesRiesgo.forEach(btn => btn.classList.add("btn-riesgo-desactivado"));
+        resultadoLinea.textContent = "Resultado de la evaluación…";
+        resultadoLinea.classList.remove("ok", "error");
+        resultadoExplicacion.textContent = "";
+        resultadoProteccion.textContent = "";
+
+        panelMensajes.innerHTML = "";
+        agregarMensajeLog("Simulación reiniciada. Vuelve a practicar con los casos de amenazas.", "info");
+
+        renderListaEscenarios();
+      }
+
+      // -------------------------
+      // Sugerir siguiente caso
+      // -------------------------
+      function sugerirSiguienteCaso() {
+        const pendientes = escenarios.filter(e => !estado.resueltos.has(e.id));
+        if (pendientes.length === 0) {
+          agregarMensajeLog(
+            "Ya has trabajado con todos los casos. Reinicia la simulación para practicar otra vez.",
+            "info"
+          );
+          return;
+        }
+
+        // Pequeña lógica: priorizar los de riesgo alto y falsificación
+        const prioritarios = pendientes.filter(e => e.riesgo === "alto" || e.falsificacion);
+        const listaBase = prioritarios.length > 0 ? prioritarios : pendientes;
+        const elegido = listaBase[Math.floor(Math.random() * listaBase.length)];
+
+        seleccionarEscenario(elegido.id);
+        agregarMensajeLog(
+          `Sugerencia: revisa el caso "${elegido.titulo}" y clasifica su nivel de riesgo.`,
+          "info"
+        );
+      }
+
+      // -------------------------
+      // Listeners de botones
+      // -------------------------
+      botonesRiesgo.forEach(btn => {
+        btn.addEventListener("click", () => {
+          if (btn.classList.contains("btn-riesgo-desactivado")) return;
+          const nivel = btn.dataset.nivel;
+          evaluarRiesgo(nivel);
+        });
+      });
+
+      btnReiniciar.addEventListener("click", reiniciarSimulacion);
+      btnSugerir.addEventListener("click", sugerirSiguienteCaso);
+
+      // -------------------------
+      // Inicialización
+      // -------------------------
+      renderListaEscenarios();
+      actualizarEstadoGlobal();
+      agregarMensajeLog(
+        "Bienvenido al simulador de amenazas digitales. Empieza seleccionando un caso de la lista.",
+        "info"
+      );
+    })();
+  </script>
+</body>
+</html>
