@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Simulador de Productividad y Colaboración Digital</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: #e5e7eb;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    main {
+      width: 100%;
+      max-width: 1100px;
+      margin: 16px;
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      padding: 16px 20px 10px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    header h1 span.chip {
+      font-size: 0.7rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(248, 250, 252, 0.06);
+      color: #e5e7eb;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    #controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #020617;
+      color: #e5e7eb;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease;
+    }
+
+    button span.icon {
+      font-size: 0.9rem;
+    }
+
+    button:hover {
+      background: #0b1120;
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.6);
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0) scale(0.98);
+      box-shadow: none;
+    }
+
+    .badge {
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      color: #e5e7eb;
+      white-space: nowrap;
+    }
+
+    .badge-ok {
+      background: rgba(22, 163, 74, 0.12);
+      border-color: rgba(34, 197, 94, 0.9);
+      color: #bbf7d0;
+      animation: parpadeoListo 1s ease-in-out infinite;
+    }
+
+    @keyframes parpadeoListo {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.3); }
+      50% { box-shadow: 0 0 0 6px rgba(22, 163, 74, 0); }
+    }
+
+    #layout {
+      display: grid;
+      grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+      flex: 1;
+      min-height: 420px;
+    }
+
+    #panel-izq {
+      border-right: 1px solid rgba(148, 163, 184, 0.2);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 55%);
+    }
+
+    #panel-der {
+      padding: 14px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    h2 {
+      font-size: 0.9rem;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #94a3b8;
+    }
+
+    #estado {
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    #progreso-linea {
+      position: relative;
+      width: 100%;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 1);
+      overflow: hidden;
+      border: 1px solid rgba(51, 65, 85, 0.9);
+    }
+
+    #progreso-barra {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #22d3ee);
+      transition: width 0.2s ease-out;
+    }
+
+    #mensaje-principal {
+      font-size: 0.78rem;
+      color: #9ca3af;
+    }
+
+    #estadisticas {
+      font-size: 0.78rem;
+      color: #cbd5f5;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    #estadisticas span {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+    }
+
+    #lista-escenarios {
+      margin-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 280px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .escenario {
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      transition: background 0.12s ease, border 0.12s ease, transform 0.08s ease;
+    }
+
+    .escenario:hover {
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), rgba(15, 23, 42, 0.98));
+      border-color: rgba(56, 189, 248, 0.9);
+      transform: translateY(-1px);
+    }
+
+    .escenario-activo {
+      background: radial-gradient(circle at top left, rgba(96, 165, 250, 0.2), rgba(15, 23, 42, 0.98));
+      border-color: rgba(96, 165, 250, 0.9);
+      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.9);
+    }
+
+    .escenario-resuelto {
+      border-color: rgba(34, 197, 94, 0.9);
+      background: radial-gradient(circle at top left, rgba(22, 163, 74, 0.18), rgba(15, 23, 42, 0.98));
+    }
+
+    .escenario-icono {
+      font-size: 1.2rem;
+      margin-top: 2px;
+    }
+
+    .escenario-textos {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .escenario-titulo {
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
+    .escenario-tags {
+      font-size: 0.7rem;
+      color: #9ca3af;
+    }
+
+    #tips {
+      font-size: 0.75rem;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px dashed rgba(148, 163, 184, 0.6);
+      color: #9ca3af;
+      margin-top: 6px;
+    }
+
+    #tips span.icon {
+      margin-right: 6px;
+    }
+
+    /* Panel derecho */
+
+    #detalle-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #detalle-encabezado {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #detalle-encabezado small {
+      font-size: 0.72rem;
+      color: #9ca3af;
+    }
+
+    #detalle-escenario {
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.22), rgba(15, 23, 42, 0.98));
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      min-height: 170px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.82rem;
+    }
+
+    #detalle-titulo {
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #detalle-descripcion {
+      color: #e5e7eb;
+      line-height: 1.35;
+    }
+
+    #detalle-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 0.72rem;
+    }
+
+    .badge-mini {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+    }
+
+    .badge-eje {
+      background: rgba(59, 130, 246, 0.18);
+      border-color: rgba(96, 165, 250, 0.9);
+      color: #dbeafe;
+    }
+
+    .badge-bienestar {
+      background: rgba(22, 163, 74, 0.18);
+      border-color: rgba(34, 197, 94, 0.9);
+      color: #bbf7d0;
+    }
+
+    #nivel-botones {
+      margin-top: 4px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn-nivel {
+      flex: 1;
+      min-width: 140px;
+      justify-content: center;
+      border-radius: 10px;
+    }
+
+    .btn-nivel[data-nivel="bajo"] {
+      border-color: rgba(148, 163, 184, 0.9);
+    }
+
+    .btn-nivel[data-nivel="medio"] {
+      border-color: rgba(250, 204, 21, 0.9);
+    }
+
+    .btn-nivel[data-nivel="alto"] {
+      border-color: rgba(34, 197, 94, 0.9);
+    }
+
+    .btn-nivel-desactivado {
+      opacity: 0.6;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    #resultado {
+      border-radius: 12px;
+      padding: 8px 10px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid rgba(75, 85, 99, 0.9);
+      font-size: 0.78rem;
+      min-height: 90px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    #resultado-linea {
+      font-weight: 600;
+    }
+
+    #resultado-linea.ok {
+      color: #bbf7d0;
+    }
+
+    #resultado-linea.error {
+      color: #fecaca;
+    }
+
+    #resultado-explicacion {
+      color: #e5e7eb;
+    }
+
+    #resultado-mejora {
+      color: #bfdbfe;
+    }
+
+    #panel-mensajes {
+      margin-top: 2px;
+      border-radius: 12px;
+      padding: 8px 10px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      font-size: 0.76rem;
+      max-height: 130px;
+      overflow-y: auto;
+    }
+
+    #panel-mensajes .mensaje {
+      margin-bottom: 4px;
+      line-height: 1.35;
+    }
+
+    #panel-mensajes .mensaje small {
+      color: #6b7280;
+      font-size: 0.68rem;
+    }
+
+    #panel-mensajes .mensaje-ok {
+      color: #bbf7d0;
+    }
+
+    #panel-mensajes .mensaje-error {
+      color: #fecaca;
+    }
+
+    #panel-mensajes .mensaje-info {
+      color: #bfdbfe;
+    }
+
+    @media (max-width: 820px) {
+      #layout {
+        grid-template-columns: 1fr;
+      }
+      #panel-izq {
+        border-right: none;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+      }
+      main {
+        margin: 8px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      #controls {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>
+        🌐 Simulador de Productividad y Colaboración Digital
+        <span class="chip">Laboratorio de prácticas saludables</span>
+      </h1>
+      <div id="controls">
+        <span id="estado-pasos" class="badge">
+          Retos completados: <span id="resueltos-num">0</span>/<span id="total-num">0</span>
+        </span>
+        <button id="btn-sugerir" type="button">
+          <span class="icon">🎯</span>
+          Sugerir siguiente reto
+        </button>
+        <button id="btn-reiniciar" type="button">
+          <span class="icon">🔄</span>
+          Reiniciar simulación
+        </button>
+      </div>
+    </header>
+
+    <section id="layout">
+      <!-- Panel izquierdo: lista de escenarios -->
+      <aside id="panel-izq">
+        <h2>Retos digitales</h2>
+        <div id="estado">
+          <span>Elige un reto, lee la situación y decide qué tan buena es la estrategia digital.</span>
+          <div id="progreso-linea">
+            <div id="progreso-barra"></div>
+          </div>
+          <div id="estadisticas">
+            <span id="stat-aciertos">✅ Aciertos: 0</span>
+            <span id="stat-errores">⚠️ Intentos: 0</span>
+          </div>
+          <span id="mensaje-principal"></span>
+        </div>
+
+        <div id="lista-escenarios">
+          <!-- Se llena desde JS -->
+        </div>
+
+        <div id="tips">
+          <span class="icon">💡</span>
+          Piensa en prácticas que combinen:
+          <strong>creatividad</strong>, <strong>inclusión</strong>, <strong>colaboración respetuosa</strong> y
+          <strong>cuidado de tu bienestar</strong>. No todo es productividad: también importa tu salud digital.
+        </div>
+      </aside>
+
+      <!-- Panel derecho: detalle de escenario -->
+      <section id="panel-der">
+        <div id="detalle-wrapper">
+          <div id="detalle-encabezado">
+            <h2>Evaluación de prácticas digitales</h2>
+            <small>Clasifica la estrategia: ¿poco efectiva, aceptable o muy saludable?</small>
+          </div>
+
+          <div id="detalle-escenario">
+            <div id="detalle-titulo">
+              <span>👀 Selecciona un reto en la lista para empezar.</span>
+            </div>
+            <div id="detalle-descripcion">
+              Verás aquí la descripción completa del reto sobre productividad, colaboración o bienestar digital.
+            </div>
+            <div id="detalle-badges"></div>
+
+            <div id="nivel-botones">
+              <button class="btn-nivel btn-nivel-desactivado" data-nivel="bajo">
+                😕 Poco efectiva
+              </button>
+              <button class="btn-nivel btn-nivel-desactivado" data-nivel="medio">
+                🙂 Aceptable
+              </button>
+              <button class="btn-nivel btn-nivel-desactivado" data-nivel="alto">
+                🚀 Muy efectiva y saludable
+              </button>
+            </div>
+          </div>
+
+          <div id="resultado">
+            <div id="resultado-linea">Resultado de tu elección…</div>
+            <div id="resultado-explicacion"></div>
+            <div id="resultado-mejora"></div>
+          </div>
+
+          <div id="panel-mensajes">
+            <!-- Mensajes dinámicos -->
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      // -------------------------
+      // Escenarios del simulador
+      // -------------------------
+      const escenarios = [
+        {
+          id: 1,
+          icono: "🎨",
+          titulo: "Presentación creativa e inclusiva",
+          eje: "Productividad digital",
+          etiquetas: ["Creatividad", "Formatos digitales", "Accesibilidad"],
+          nivelEsperado: "alto",
+          descripcion:
+            "Un grupo debe exponer un trabajo. En lugar de solo diapositivas con mucho texto, crean una presentación con imágenes, un pequeño video explicativo y añaden subtítulos para que personas con dificultades auditivas puedan seguirla.",
+          explicacion:
+            "La estrategia aprovecha varios formatos digitales (imágenes, video, texto) y además piensa en la accesibilidad con los subtítulos. Esto aumenta la comprensión y la inclusión de todo el grupo.",
+          mejora:
+            "Piensa siempre cómo tu contenido se verá y se escuchará en distintos dispositivos y para distintas personas. Añadir subtítulos, descripciones y buenos contrastes de color hace tu trabajo más profesional."
+        },
+        {
+          id: 2,
+          icono: "⌛",
+          titulo: "Tareas digitales sin planificación",
+          eje: "Productividad digital",
+          etiquetas: ["Organización", "Gestión del tiempo"],
+          nivelEsperado: "bajo",
+          descripcion:
+            "Un estudiante recibe muchas tareas en plataformas virtuales y decide ir haciendo todo 'como vaya saliendo', sin calendario ni listado de prioridades. Constantemente siente que se le olvida algo.",
+          explicacion:
+            "La estrategia es poco efectiva porque depende solo de la memoria y no aprovecha herramientas digitales de organización. Eso aumenta el estrés y las posibilidades de olvidar actividades.",
+          mejora:
+            "Usa agendas digitales, listas de tareas o recordatorios en el calendario. Agrupa tareas similares y reserva bloques de tiempo para concentrarte en cada una."
+        },
+        {
+          id: 3,
+          icono: "🧩",
+          titulo: "Buscar soluciones antes de pedir ayuda",
+          eje: "Productividad digital",
+          etiquetas: ["Resolución de problemas", "Autonomía"],
+          nivelEsperado: "medio",
+          descripcion:
+            "Antes de escribir al docente, una estudiante intenta solucionar un problema técnico buscando en la ayuda del sistema, un tutorial corto y la sección de preguntas frecuentes. Si no lo logra, recién entonces pide apoyo.",
+          explicacion:
+            "La estrategia es bastante efectiva: intenta primero resolver el problema usando recursos digitales disponibles y solo después pide ayuda. Esto desarrolla autonomía y habilidades de búsqueda.",
+          mejora:
+            "Es positivo buscar primero, pero pon límites de tiempo. Si después de un rato no encuentras solución, pedir apoyo es parte de una buena gestión del tiempo."
+        },
+        {
+          id: 4,
+          icono: "🌍",
+          titulo: "Documento colaborativo con equipo internacional",
+          eje: "Colaboración global",
+          etiquetas: ["Trabajo en equipo", "Interacción digital", "Colaboración global"],
+          nivelEsperado: "alto",
+          descripcion:
+            "Estudiantes de distintos países preparan un informe usando un documento en línea compartido. Definen roles, usan comentarios para dar retroalimentación y atan tareas con fechas. Además, acuerdan normas de respeto en el chat.",
+          explicacion:
+            "La estrategia usa herramientas colaborativas en tiempo real, distribuye roles y mantiene normas claras de comunicación. Esto favorece la colaboración global y el respeto intercultural.",
+          mejora:
+            "Añadir breves reuniones virtuales para revisar avances y asegurarse de que todas las voces sean escuchadas puede potenciar aún más el trabajo."
+        },
+        {
+          id: 5,
+          icono: "🌱",
+          titulo: "Entregas pesadas por correo a todo el curso",
+          eje: "Colaboración global",
+          etiquetas: ["Sostenibilidad digital", "Uso responsable"],
+          nivelEsperado: "bajo",
+          descripcion:
+            "Para compartir un video de la clase, un estudiante reenvía por correo archivos muy pesados a todos sus compañeros, varias veces, sin usar enlaces ni plataformas compartidas.",
+          explicacion:
+            "Es una práctica poco sostenible digitalmente: genera mucho tráfico innecesario, ocupa espacios de almacenamiento y puede saturar bandejas de entrada.",
+          mejora:
+            "Sube el material a una plataforma compartida o nube institucional y comparte solo el enlace. Así reduces copias, facilitas el acceso y cuidas mejor los recursos."
+        },
+        {
+          id: 6,
+          icono: "📶",
+          titulo: "Ajuste de horarios por diferencias de zona",
+          eje: "Colaboración global",
+          etiquetas: ["Empatía digital", "Organización"],
+          nivelEsperado: "alto",
+          descripcion:
+            "Un equipo con personas de varios países usa una herramienta de horarios para encontrar horas razonables para todas. Rotan la hora de la reunión para que el sacrificio de levantarse muy temprano no siempre sea para las mismas personas.",
+          explicacion:
+            "La estrategia es muy efectiva: respeta los tiempos de cada persona, usa herramientas digitales para coordinar y distribuye el esfuerzo de manera justa.",
+          mejora:
+            "Registrar acuerdos en un documento compartido ayuda a que nadie se pierda cambios de horarios y facilita la comunicación."
+        },
+        {
+          id: 7,
+          icono: "💼",
+          titulo: "Trabajo remoto sin pausas ni límites",
+          eje: "Colaboración remota",
+          etiquetas: ["Equilibrio digital", "Autocuidado"],
+          nivelEsperado: "bajo",
+          descripcion:
+            "Un estudiante que trabaja y estudia remotamente deja siempre abiertas las apps de trabajo, responde mensajes a cualquier hora y revisa notificaciones incluso de madrugada.",
+          explicacion:
+            "Esta práctica es poco saludable: dificulta la desconexión, aumenta el estrés y confunde los límites entre estudio, trabajo y descanso.",
+          mejora:
+            "Define horarios claros, configura periodos de 'no molestar' en tus dispositivos y acuerda con tu equipo tiempos razonables para responder mensajes."
+        },
+        {
+          id: 8,
+          icono: "🧘",
+          titulo: "Rutinas para clases virtuales largas",
+          eje: "Colaboración remota",
+          etiquetas: ["Equilibrio y control", "Bienestar"],
+          nivelEsperado: "alto",
+          descripcion:
+            "Durante una jornada larga de clases virtuales, el grupo acuerda hacer pequeñas pausas activas, apagar la cámara cuando sea posible para descansar y alternar actividades expositivas con dinámicas participativas.",
+          explicacion:
+            "La estrategia equilibra el uso de la tecnología con el cuidado físico y mental. Mantiene la atención sin exigir estar conectado de forma intensa y constante.",
+          mejora:
+            "También se pueden usar recordatorios de postura, ejercicios de respiración y normas de respeto para que nadie se sienta obligado a mostrar siempre su entorno."
+        },
+        {
+          id: 9,
+          icono: "💬",
+          titulo: "Chat del grupo funcionando 24/7",
+          eje: "Colaboración remota",
+          etiquetas: ["Conexiones saludables", "Límites"],
+          nivelEsperado: "medio",
+          descripcion:
+            "Un grupo de clase tiene un chat donde se habla de tareas, avisos y también temas sociales. Es útil, pero a veces llegan mensajes a horas muy tarde y algunos sienten presión de contestar siempre.",
+          explicacion:
+            "La práctica es útil para coordinar, pero sin acuerdos puede generar presión constante y afectar el descanso.",
+          mejora:
+            "Es buena idea definir horarios aproximados para temas académicos y aclarar que nadie está obligado a responder de inmediato. También se pueden usar canales separados para temas sociales y académicos."
+        },
+        {
+          id: 10,
+          icono: "🔎",
+          titulo: "Buscar solo en la primera página de resultados",
+          eje: "Productividad digital",
+          etiquetas: ["Optimización de habilidades digitales", "Pensamiento crítico"],
+          nivelEsperado: "medio",
+          descripcion:
+            "Para un trabajo, una estudiante solo revisa los dos primeros enlaces del buscador, sin comparar fuentes ni explorar otros formatos como videos, infografías o artículos académicos.",
+          explicacion:
+            "La estrategia es aceptable como punto de inicio, pero limita la calidad de la información y no aprovecha todo el potencial de los recursos digitales.",
+          mejora:
+            "Compara varias fuentes, revisa quién publica la información y busca distintos formatos (artículos, videos, podcasts, infografías) para tener una visión más completa."
+        }
+      ];
+
+      // -------------------------
+      // Referencias a elementos
+      // -------------------------
+      const listaEscenarios = document.getElementById("lista-escenarios");
+      const mensajePrincipal = document.getElementById("mensaje-principal");
+      const progresoBarra = document.getElementById("progreso-barra");
+      const statAciertos = document.getElementById("stat-aciertos");
+      const statErrores = document.getElementById("stat-errores");
+      const resueltosNum = document.getElementById("resueltos-num");
+      const totalNum = document.getElementById("total-num");
+      const estadoPasos = document.getElementById("estado-pasos");
+
+      const detalleTitulo = document.getElementById("detalle-titulo");
+      const detalleDescripcion = document.getElementById("detalle-descripcion");
+      const detalleBadges = document.getElementById("detalle-badges");
+      const botonesNivel = Array.from(document.querySelectorAll(".btn-nivel"));
+
+      const resultadoLinea = document.getElementById("resultado-linea");
+      const resultadoExplicacion = document.getElementById("resultado-explicacion");
+      const resultadoMejora = document.getElementById("resultado-mejora");
+
+      const panelMensajes = document.getElementById("panel-mensajes");
+
+      const btnReiniciar = document.getElementById("btn-reiniciar");
+      const btnSugerir = document.getElementById("btn-sugerir");
+
+      // -------------------------
+      // Estado de la simulación
+      // -------------------------
+      const estado = {
+        seleccionadoId: null,
+        resueltos: new Set(),
+        aciertos: 0,
+        intentos: 0
+      };
+
+      totalNum.textContent = escenarios.length.toString();
+
+      const mensajesInicio = [
+        "Selecciona un reto y analiza qué tan saludable es la práctica digital.",
+        "Piensa: ¿esta forma de usar la tecnología cuida también a las personas?",
+        "Las buenas prácticas digitales combinan productividad, colaboración y bienestar."
+      ];
+
+      const mensajesCorrecto = [
+        "¡Muy bien! Tu criterio digital va por buen camino 🌟.",
+        "Buen análisis, has evaluado correctamente la estrategia.",
+        "Excelente, estás afinando tu radar de buenas prácticas digitales.",
+        "¡Eso es! No solo importa hacer mucho, sino hacerlo de forma saludable."
+      ];
+
+      const mensajesError = [
+        "Casi… vuelve a leer la situación con calma.",
+        "Piensa si esta práctica ayuda a todos o solo complica las cosas.",
+        "Fíjate si hay señales de falta de equilibrio o poca inclusión.",
+        "Vuelve a preguntarte: ¿es realmente la mejor forma de usar la tecnología aquí?"
+      ];
+
+      const mensajesFinal = [
+        "Has completado todos los retos. ¡Tu kit de habilidades digitales se fortaleció! 🧰",
+        "Simulación completada. Estás listo/a para colaborar mejor en entornos digitales 💪.",
+        "Gran trabajo, sigues construyendo hábitos digitales sanos y efectivos ⭐."
+      ];
+
+      function elegirMensaje(lista) {
+        return lista[Math.floor(Math.random() * lista.length)];
+      }
+
+      function agregarMensajeLog(texto, tipo = "info") {
+        const div = document.createElement("div");
+        div.classList.add("mensaje");
+        if (tipo === "ok") div.classList.add("mensaje-ok");
+        if (tipo === "error") div.classList.add("mensaje-error");
+        if (tipo === "info") div.classList.add("mensaje-info");
+
+        const iconos = {
+          info: "💬",
+          ok: "✅",
+          error: "⚠️"
+        };
+
+        const icono = iconos[tipo] || "💬";
+        const ahora = new Date();
+        const hora = ahora.toLocaleTimeString("es-PE", {
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+
+        div.innerHTML = `<strong>${icono}</strong> ${texto} <small>(${hora})</small>`;
+        panelMensajes.prepend(div);
+      }
+
+      // -------------------------
+      // Render de la lista de retos
+      // -------------------------
+      function renderListaEscenarios() {
+        listaEscenarios.innerHTML = "";
+
+        escenarios.forEach(esc => {
+          const item = document.createElement("div");
+          item.className = "escenario";
+          if (estado.resueltos.has(esc.id)) {
+            item.classList.add("escenario-resuelto");
+          }
+          item.dataset.id = esc.id.toString();
+
+          const icono = document.createElement("div");
+          icono.className = "escenario-icono";
+          icono.textContent = esc.icono;
+
+          const textos = document.createElement("div");
+          textos.className = "escenario-textos";
+
+          const titulo = document.createElement("div");
+          titulo.className = "escenario-titulo";
+          titulo.textContent = esc.titulo;
+
+          const tags = document.createElement("div");
+          tags.className = "escenario-tags";
+          tags.textContent = `${esc.eje} · ${esc.etiquetas.join(" · ")}`;
+
+          textos.appendChild(titulo);
+          textos.appendChild(tags);
+
+          item.appendChild(icono);
+          item.appendChild(textos);
+
+          item.addEventListener("click", () => {
+            seleccionarEscenario(esc.id);
+          });
+
+          listaEscenarios.appendChild(item);
+        });
+      }
+
+      function marcarEscenarioActivo(id) {
+        const items = Array.from(document.querySelectorAll(".escenario"));
+        items.forEach(el => {
+          el.classList.remove("escenario-activo");
+          const escId = parseInt(el.dataset.id, 10);
+          if (escId === id) {
+            el.classList.add("escenario-activo");
+          }
+        });
+      }
+
+      // -------------------------
+      // Mostrar detalle de un reto
+      // -------------------------
+      function seleccionarEscenario(id) {
+        estado.seleccionadoId = id;
+        const esc = escenarios.find(e => e.id === id);
+        if (!esc) return;
+
+        marcarEscenarioActivo(id);
+
+        detalleTitulo.innerHTML = `${esc.icono} <span>${esc.titulo}</span>`;
+        detalleDescripcion.textContent = esc.descripcion;
+
+        detalleBadges.innerHTML = "";
+        const badgeEje = document.createElement("span");
+        badgeEje.className = "badge-mini badge-eje";
+        badgeEje.textContent = esc.eje;
+
+        detalleBadges.appendChild(badgeEje);
+
+        esc.etiquetas.forEach(et => {
+          const b = document.createElement("span");
+          b.className = "badge-mini";
+          if (et.toLowerCase().includes("equilibrio") || et.toLowerCase().includes("bienestar") || et.toLowerCase().includes("salud")) {
+            b.classList.add("badge-bienestar");
+          }
+          b.textContent = et;
+          detalleBadges.appendChild(b);
+        });
+
+        botonesNivel.forEach(btn => {
+          btn.classList.remove("btn-nivel-desactivado");
+        });
+
+        resultadoLinea.textContent = "Elige qué tan efectiva te parece esta estrategia…";
+        resultadoLinea.classList.remove("ok", "error");
+        resultadoExplicacion.textContent = "";
+        resultadoMejora.textContent = "";
+
+        agregarMensajeLog(
+          `Analizando reto: "${esc.titulo}". Evalúa si la práctica es poco efectiva, aceptable o muy saludable.`,
+          "info"
+        );
+      }
+
+      // -------------------------
+      // Evaluar elección
+      // -------------------------
+      function evaluarNivel(nivelElegido) {
+        if (estado.seleccionadoId === null) {
+          agregarMensajeLog("Primero selecciona un reto en la lista.", "error");
+          return;
+        }
+
+        const esc = escenarios.find(e => e.id === estado.seleccionadoId);
+        if (!esc) return;
+
+        const acierto = esc.nivelEsperado === nivelElegido;
+        estado.intentos++;
+
+        if (acierto) {
+          estado.aciertos++;
+          estado.resueltos.add(esc.id);
+
+          resultadoLinea.textContent = elegirMensaje(mensajesCorrecto);
+          resultadoLinea.classList.remove("error");
+          resultadoLinea.classList.add("ok");
+
+          resultadoExplicacion.textContent = esc.explicacion;
+          resultadoMejora.textContent = "Para seguir mejorando: " + esc.mejora;
+
+          agregarMensajeLog(
+            `Has evaluado correctamente el reto: "${esc.titulo}".`,
+            "ok"
+          );
+        } else {
+          resultadoLinea.textContent = elegirMensaje(mensajesError);
+          resultadoLinea.classList.remove("ok");
+          resultadoLinea.classList.add("error");
+
+          resultadoExplicacion.textContent =
+            "Tu clasificación puede mejorar. Observa si la estrategia realmente cuida tanto la productividad como el bienestar y la colaboración.";
+          resultadoMejora.textContent =
+            "Vuelve a leer el reto y piensa si hay formas más creativas, inclusivas o equilibradas de usar la tecnología en esa situación.";
+
+          agregarMensajeLog(
+            `Tu evaluación para "${esc.titulo}" puede mejorar. Intenta de nuevo.`,
+            "error"
+          );
+        }
+
+        actualizarEstadoGlobal();
+        renderListaEscenarios();
+
+        if (estado.resueltos.size === escenarios.length) {
+          mensajePrincipal.textContent = elegirMensaje(mensajesFinal);
+          estadoPasos.classList.add("badge-ok");
+        }
+      }
+
+      // -------------------------
+      // Actualizar estado global
+      // -------------------------
+      function actualizarEstadoGlobal() {
+        resueltosNum.textContent = estado.resueltos.size.toString();
+        statAciertos.textContent = `✅ Aciertos: ${estado.aciertos}`;
+        statErrores.textContent = `⚠️ Intentos: ${estado.intentos}`;
+
+        const porcentaje = (estado.resueltos.size / escenarios.length) * 100;
+        progresoBarra.style.width = porcentaje + "%";
+
+        if (estado.resueltos.size === 0) {
+          mensajePrincipal.textContent = elegirMensaje(mensajesInicio);
+          estadoPasos.classList.remove("badge-ok");
+        } else if (estado.resueltos.size < escenarios.length) {
+          mensajePrincipal.textContent =
+            "Sigue evaluando retos para fortalecer tu productividad y colaboración digital.";
+        }
+      }
+
+      // -------------------------
+      // Reiniciar simulación
+      // -------------------------
+      function reiniciarSimulacion() {
+        estado.seleccionadoId = null;
+        estado.resueltos = new Set();
+        estado.aciertos = 0;
+        estado.intentos = 0;
+
+        progresoBarra.style.width = "0%";
+        resueltosNum.textContent = "0";
+        statAciertos.textContent = "✅ Aciertos: 0";
+        statErrores.textContent = "⚠️ Intentos: 0";
+        mensajePrincipal.textContent = elegirMensaje(mensajesInicio);
+        estadoPasos.classList.remove("badge-ok");
+
+        detalleTitulo.innerHTML = '<span>👀 Selecciona un reto en la lista para empezar.</span>';
+        detalleDescripcion.textContent =
+          "Verás aquí la descripción completa del reto sobre productividad, colaboración o bienestar digital.";
+        detalleBadges.innerHTML = "";
+        botonesNivel.forEach(btn => btn.classList.add("btn-nivel-desactivado"));
+        resultadoLinea.textContent = "Resultado de tu elección…";
+        resultadoLinea.classList.remove("ok", "error");
+        resultadoExplicacion.textContent = "";
+        resultadoMejora.textContent = "";
+
+        panelMensajes.innerHTML = "";
+        agregarMensajeLog(
+          "Simulación reiniciada. Vuelve a practicar tus habilidades de productividad y colaboración digital.",
+          "info"
+        );
+
+        renderListaEscenarios();
+      }
+
+      // -------------------------
+      // Sugerir siguiente reto
+      // -------------------------
+      function sugerirSiguienteReto() {
+        const pendientes = escenarios.filter(e => !estado.resueltos.has(e.id));
+        if (pendientes.length === 0) {
+          agregarMensajeLog(
+            "Ya has trabajado con todos los retos. Reinicia la simulación para practicar de nuevo.",
+            "info"
+          );
+          return;
+        }
+
+        // Prioriza algunos ejes clave: equilibrio, inclusión, colaboración global
+        const prioritarios = pendientes.filter(e =>
+          e.etiquetas.some(tag =>
+            /equilibrio|bienestar|inclusi|colaboración global|sostenibilidad/i.test(tag)
+          )
+        );
+        const listaBase = prioritarios.length > 0 ? prioritarios : pendientes;
+        const elegido = listaBase[Math.floor(Math.random() * listaBase.length)];
+
+        seleccionarEscenario(elegido.id);
+        agregarMensajeLog(
+          `Sugerencia: revisa el reto "${elegido.titulo}" y evalúa su estrategia digital.`,
+          "info"
+        );
+      }
+
+      // -------------------------
+      // Listeners de botones
+      // -------------------------
+      botonesNivel.forEach(btn => {
+        btn.addEventListener("click", () => {
+          if (btn.classList.contains("btn-nivel-desactivado")) return;
+          const nivel = btn.dataset.nivel;
+          evaluarNivel(nivel);
+        });
+      });
+
+      btnReiniciar.addEventListener("click", reiniciarSimulacion);
+      btnSugerir.addEventListener("click", sugerirSiguienteReto);
+
+      // -------------------------
+      // Inicialización
+      // -------------------------
+      renderListaEscenarios();
+      actualizarEstadoGlobal();
+      agregarMensajeLog(
+        "Bienvenido al laboratorio de productividad y colaboración digital. Empieza seleccionando un reto.",
+        "info"
+      );
+    })();
+  </script>
+</body>
+</html>
