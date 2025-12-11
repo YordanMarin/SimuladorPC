@@ -1,290 +1,842 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador PC - Fotos Reales</title>
-    <style>
-        /* --- ESTILOS GENERALES --- */
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #1a1a1a;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 0;
-            padding: 20px;
-        }
+  <meta charset="UTF-8" />
+  <title>Simulador de Ensamblaje de PC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
 
-        /* Cabecera y Botón */
-        .header-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 90%;
-            max-width: 800px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #444;
-            padding-bottom: 10px;
-        }
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #1e293b 0, #020617 55%);
+      color: #e5e7eb;
+      min-height: 100vh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+    }
 
-        h2 { margin: 0; color: #00d2ff; }
+    main {
+      width: 100%;
+      max-width: 1100px;
+      margin: 16px;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
 
-        .btn-reset {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
-            transition: background 0.2s;
-        }
-        .btn-reset:hover { background-color: #c0392b; }
+    header {
+      padding: 16px 20px 8px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
 
-        /* Mensaje de Estado */
-        #status-message {
-            background: #333;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            border-left: 5px solid #00d2ff;
-            text-align: center;
-            width: 90%;
-            max-width: 600px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
+    header h1 {
+      margin: 0;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 30px;
-        }
+    header h1 span.chip {
+      font-size: 0.7rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.1);
+      color: #7dd3fc;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
 
-        /* --- MENÚ DE PIEZAS --- */
-        .parts-panel {
-            background: #252525;
-            padding: 20px;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            min-width: 160px;
-            border: 1px solid #444;
-        }
+    #controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
 
-        .component {
-            width: 130px;
-            height: 100px;
-            cursor: grab;
-            border-radius: 6px;
-            border: 2px solid #555;
-            background-color: white; /* Fondo blanco para que se vea la foto */
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            transition: transform 0.2s, border-color 0.2s;
-            position: relative;
-        }
-        
-        .component:hover { transform: scale(1.05); border-color: #00d2ff; }
-        .component:active { cursor: grabbing; }
+    button {
+      border: none;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #0f172a;
+      color: #e5e7eb;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease;
+    }
 
-        /* Etiquetas de texto debajo de las fotos */
-        .component::after {
-            content: attr(data-name);
-            position: absolute;
-            bottom: -20px;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            font-size: 11px;
-            color: #ccc;
-        }
+    button span.icon {
+      font-size: 0.9rem;
+    }
 
-        /* --- FOTOS DE LOS COMPONENTES (URL Estables) --- */
-        #comp-placa { background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Asus_P5K_SE_Motherboard.jpg/320px-Asus_P5K_SE_Motherboard.jpg'); }
-        #comp-cpu { background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Intel_80486DX2-66_top_with_heatsink_compound.jpg/320px-Intel_80486DX2-66_top_with_heatsink_compound.jpg'); }
-        #comp-ram { background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Swissbit_2GB_PC2-5300U-555.jpg/320px-Swissbit_2GB_PC2-5300U-555.jpg'); }
-        #comp-gpu { background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Nvidia_Geforce_6600GT.jpg/320px-Nvidia_Geforce_6600GT.jpg'); }
-        #comp-fuente { background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/ATX_PS.jpg/320px-ATX_PS.jpg'); }
+    button:hover {
+      background: #020617;
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.6);
+      transform: translateY(-1px);
+    }
 
+    button:active {
+      transform: translateY(0px) scale(0.98);
+      box-shadow: none;
+    }
 
-        /* --- ZONA DE GABINETE --- */
-        .build-zone {
-            width: 450px;
-            height: 550px;
-            background-color: #000;
-            border: 4px dashed #555;
-            border-radius: 10px;
-            position: relative;
-            /* Foto del Gabinete */
-            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Empty_ATX_case.jpg/450px-Empty_ATX_case.jpg');
-            background-size: cover;
-            background-position: center;
-        }
+    #layout {
+      display: grid;
+      grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+      flex: 1;
+      min-height: 420px;
+    }
 
-        .build-zone.drag-over {
-            border-color: #00ff00;
-            box-shadow: 0 0 20px rgba(0,255,0,0.3);
-        }
+    #panel-izq {
+      border-right: 1px solid rgba(148, 163, 184, 0.2);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.08), transparent 55%);
+    }
 
-        /* --- PIEZAS YA INSTALADAS --- */
-        .installed {
-            position: absolute;
-            cursor: default;
-            z-index: 10;
-            background-color: transparent; /* Quitar fondo blanco al instalar */
-            border: none;
-        }
-        .installed::after { content: none; } /* Quitar texto al instalar */
+    #panel-der {
+      padding: 14px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
 
-        /* Posiciones exactas dentro del gabinete */
-        #installed-placa {
-            width: 320px; height: 350px;
-            top: 50px; left: 60px;
-            z-index: 1;
-        }
-        #installed-cpu {
-            width: 60px; height: 60px;
-            top: 150px; left: 190px;
-            z-index: 2;
-        }
-        #installed-ram {
-            width: 120px; height: 30px;
-            top: 120px; left: 240px;
-            transform: rotate(90deg);
-            z-index: 2;
-        }
-        #installed-gpu {
-            width: 200px; height: 50px;
-            top: 280px; left: 80px;
-            z-index: 3;
-        }
-        #installed-fuente {
-            width: 140px; height: 90px;
-            bottom: 30px; right: 40px;
-            z-index: 2;
-        }
+    h2 {
+      font-size: 0.9rem;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #94a3b8;
+    }
 
-    </style>
+    #lista-componentes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-content: flex-start;
+      margin-top: 4px;
+    }
+
+    .componente {
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 0.8rem;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      cursor: grab;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 120px;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.12s ease, background 0.12s ease;
+      user-select: none;
+    }
+
+    .componente strong {
+      font-size: 0.8rem;
+    }
+
+    .componente small {
+      font-size: 0.7rem;
+      color: #9ca3af;
+    }
+
+    .componente:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.85);
+      border-color: rgba(56, 189, 248, 0.7);
+      background: radial-gradient(circle at top, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95));
+    }
+
+    .componente.dragging {
+      opacity: 0.7;
+      transform: scale(0.96);
+      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.7), 0 14px 30px rgba(15, 23, 42, 1);
+    }
+
+    .componente.colocado {
+      cursor: default;
+      border-style: dashed;
+      opacity: 0.9;
+    }
+
+    #tips {
+      margin-top: 4px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px dashed rgba(148, 163, 184, 0.6);
+      color: #9ca3af;
+    }
+
+    #tips span.icon {
+      margin-right: 6px;
+    }
+
+    #estado {
+      margin-top: 4px;
+      font-size: 0.8rem;
+      color: #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    #progreso-linea {
+      position: relative;
+      width: 100%;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 1);
+      overflow: hidden;
+      margin-top: 4px;
+      border: 1px solid rgba(51, 65, 85, 0.9);
+    }
+
+    #progreso-barra {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #22d3ee);
+      transition: width 0.2s ease-out;
+    }
+
+    #mensaje-principal {
+      margin-top: 2px;
+      font-size: 0.78rem;
+      color: #9ca3af;
+    }
+
+    #gabinete-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #gabinete-titulo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #gabinete-titulo small {
+      font-size: 0.72rem;
+      color: #9ca3af;
+    }
+
+    #gabinete {
+      flex: 1;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 8px;
+    }
+
+    #gabinete-inner {
+      border-radius: 16px;
+      padding: 12px;
+      background: radial-gradient(circle at top right, rgba(52, 211, 153, 0.12), transparent 55%), radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.16), rgba(15, 23, 42, 1));
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 10px;
+      min-height: 260px;
+    }
+
+    #zona-principal, #zona-secundaria {
+      display: grid;
+      gap: 8px;
+    }
+
+    #zona-principal {
+      grid-template-rows: repeat(4, minmax(40px, 1fr));
+    }
+
+    #zona-secundaria {
+      grid-template-rows: auto auto 1fr;
+    }
+
+    .slot {
+      border-radius: 10px;
+      padding: 6px 8px;
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+      background: rgba(15, 23, 42, 0.85);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      transition: border 0.12s ease, background 0.12s ease, transform 0.08s ease;
+      min-height: 46px;
+    }
+
+    .slot-label {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .slot-label strong {
+      font-size: 0.78rem;
+      color: #e5e7eb;
+    }
+
+    .slot-label small {
+      font-size: 0.7rem;
+      color: #9ca3af;
+    }
+
+    .slot-estado {
+      font-size: 0.72rem;
+      color: #6b7280;
+      white-space: nowrap;
+    }
+
+    .slot-vacio .slot-estado::before {
+      content: "🕳️ Vacío";
+    }
+
+    .slot-lleno {
+      border-style: solid;
+      border-color: rgba(34, 197, 94, 0.9);
+      background: radial-gradient(circle at top left, rgba(22, 163, 74, 0.16), rgba(15, 23, 42, 0.95));
+    }
+
+    .slot-lleno .slot-estado {
+      color: #4ade80;
+    }
+
+    .slot-lleno .slot-estado::before {
+      content: "✅ Correcto";
+    }
+
+    .slot-hover {
+      border-style: solid;
+      border-color: rgba(59, 130, 246, 0.9);
+      background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.18), rgba(15, 23, 42, 0.95));
+      transform: translateY(-1px);
+    }
+
+    .slot-error {
+      animation: slotError 0.25s ease;
+      border-color: rgba(248, 113, 113, 0.9) !important;
+    }
+
+    @keyframes slotError {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-3px); }
+      50% { transform: translateX(3px); }
+      75% { transform: translateX(-2px); }
+      100% { transform: translateX(0); }
+    }
+
+    #panel-mensajes {
+      margin-top: 2px;
+      border-radius: 12px;
+      padding: 8px 10px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(75, 85, 99, 0.7);
+      font-size: 0.76rem;
+      max-height: 140px;
+      overflow-y: auto;
+    }
+
+    #panel-mensajes strong {
+      color: #e5e7eb;
+    }
+
+    #panel-mensajes .mensaje {
+      margin-bottom: 4px;
+      line-height: 1.35;
+    }
+
+    #panel-mensajes .mensaje small {
+      color: #6b7280;
+      font-size: 0.68rem;
+    }
+
+    #panel-mensajes .mensaje-ok {
+      color: #bbf7d0;
+    }
+
+    #panel-mensajes .mensaje-error {
+      color: #fecaca;
+    }
+
+    #panel-mensajes .mensaje-info {
+      color: #bfdbfe;
+    }
+
+    .badge-paso {
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      color: #e5e7eb;
+      white-space: nowrap;
+    }
+
+    .badge-listo {
+      background: rgba(22, 163, 74, 0.12);
+      border-color: rgba(34, 197, 94, 0.9);
+      color: #bbf7d0;
+      animation: parpadeoListo 1s ease-in-out infinite;
+    }
+
+    @keyframes parpadeoListo {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.3); }
+      50% { box-shadow: 0 0 0 6px rgba(22, 163, 74, 0); }
+    }
+
+    #paso-actual {
+      font-size: 0.78rem;
+    }
+
+    #paso-actual span {
+      color: #e5e7eb;
+    }
+
+    @media (max-width: 820px) {
+      #layout {
+        grid-template-columns: 1fr;
+      }
+      #panel-izq {
+        border-right: none;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+      }
+      main {
+        margin: 8px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      #controls {
+        width: 100%;
+        justify-content: space-between;
+      }
+      #gabinete-inner {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
+  <main>
+    <header>
+      <h1>
+        🖥️ Simulador de Ensamblaje de PC
+        <span class="chip">Modo práctica</span>
+      </h1>
+      <div id="controls">
+        <div id="paso-actual" class="badge-paso">
+          Paso <span id="paso-num">1</span> de <span id="paso-total">6</span>
+        </div>
+        <button id="btn-aleatorio" type="button">
+          <span class="icon">🎲</span>
+          Sugerir siguiente paso
+        </button>
+        <button id="btn-reiniciar" type="button">
+          <span class="icon">🔄</span>
+          Reiniciar simulación
+        </button>
+      </div>
+    </header>
 
-    <div class="header-controls">
-        <h2>Simulador PC</h2>
-        <button class="btn-reset" onclick="resetSim()">↺ Reiniciar Todo</button>
-    </div>
+    <section id="layout">
+      <!-- Panel izquierdo: lista de componentes -->
+      <aside id="panel-izq">
+        <h2>Componentes</h2>
+        <p id="estado">
+          <span>Arrastra cada componente a su zona correcta del gabinete.</span>
+          <span id="estado-contador"></span>
+          <div id="progreso-linea">
+            <div id="progreso-barra"></div>
+          </div>
+          <span id="mensaje-principal"></span>
+        </p>
 
-    <div id="status-message">Instrucción: Arrastra la <b>Placa Base</b> dentro del gabinete.</div>
-
-    <div class="container">
-        
-        <div class="parts-panel">
-            <div class="component" draggable="true" id="comp-fuente" data-name="Fuente de Poder"></div>
-            <div class="component" draggable="true" id="comp-gpu" data-name="Tarjeta de Video"></div>
-            <div class="component" draggable="true" id="comp-cpu" data-name="Procesador (CPU)"></div>
-            <div class="component" draggable="true" id="comp-ram" data-name="Memoria RAM"></div>
-            <div class="component" draggable="true" id="comp-placa" data-name="Placa Base"></div>
+        <div id="lista-componentes">
+          <div class="componente" draggable="true" data-tipo="motherboard">
+            <strong>Placa madre</strong>
+            <small>Cerebro principal donde se conecta todo.</small>
+          </div>
+          <div class="componente" draggable="true" data-tipo="cpu">
+            <strong>CPU / Procesador</strong>
+            <small>Ejecuta las instrucciones del sistema.</small>
+          </div>
+          <div class="componente" draggable="true" data-tipo="ram">
+            <strong>Memoria RAM</strong>
+            <small>Memoria rápida para programas y juegos.</small>
+          </div>
+          <div class="componente" draggable="true" data-tipo="gpu">
+            <strong>Tarjeta de video (GPU)</strong>
+            <small>Se encarga de los gráficos y juegos.</small>
+          </div>
+          <div class="componente" draggable="true" data-tipo="psu">
+            <strong>Fuente de poder (PSU)</strong>
+            <small>Entrega energía a todos los componentes.</small>
+          </div>
+          <div class="componente" draggable="true" data-tipo="storage">
+            <strong>Almacenamiento (SSD/HDD)</strong>
+            <small>Donde se guarda tu sistema y archivos.</small>
+          </div>
         </div>
 
-        <div class="build-zone" id="case-dropzone">
-            </div>
-    </div>
+        <div id="tips">
+          <span class="icon">💡</span>
+          Tip: coloca primero la <strong>placa madre</strong>, luego el <strong>CPU</strong>, <strong>RAM</strong> y <strong>GPU</strong>.
+          Después instala la <strong>fuente de poder</strong> y el <strong>almacenamiento</strong>.
+        </div>
+      </aside>
 
-    <script>
-        // --- LÓGICA ---
-        const assemblyOrder = ['comp-placa', 'comp-cpu', 'comp-ram', 'comp-gpu', 'comp-fuente'];
-        
-        const componentNames = {
-            'comp-placa': 'Placa Base',
-            'comp-cpu': 'Procesador',
-            'comp-ram': 'Memoria RAM',
-            'comp-gpu': 'Tarjeta de Video',
-            'comp-fuente': 'Fuente de Poder'
+      <!-- Panel derecho: gabinete y mensajes -->
+      <section id="panel-der">
+        <div id="gabinete-wrapper">
+          <div id="gabinete-titulo">
+            <h2>Gabinete</h2>
+            <small>Suéltalos en el slot correcto. Si te equivocas, el gabinete se quejará un poco 😅</small>
+          </div>
+
+          <div id="gabinete">
+            <div id="gabinete-inner">
+              <!-- Columna principal (placa, cpu, ram, gpu) -->
+              <div id="zona-principal">
+                <div class="slot slot-vacio" data-acepta="motherboard">
+                  <div class="slot-label">
+                    <strong>Zona Placa Madre</strong>
+                    <small>Aquí se atornilla la placa madre (ATX / mATX).</small>
+                  </div>
+                  <div class="slot-estado"></div>
+                </div>
+                <div class="slot slot-vacio" data-acepta="cpu">
+                  <div class="slot-label">
+                    <strong>Socket CPU</strong>
+                    <small>Encaja el procesador sobre la placa.</small>
+                  </div>
+                  <div class="slot-estado"></div>
+                </div>
+                <div class="slot slot-vacio" data-acepta="ram">
+                  <div class="slot-label">
+                    <strong>Ranuras RAM</strong>
+                    <small>Coloca aquí los módulos de memoria.</small>
+                  </div>
+                  <div class="slot-estado"></div>
+                </div>
+                <div class="slot slot-vacio" data-acepta="gpu">
+                  <div class="slot-label">
+                    <strong>PCIe para GPU</strong>
+                    <small>Conecta la tarjeta de video.</small>
+                  </div>
+                  <div class="slot-estado"></div>
+                </div>
+              </div>
+
+              <!-- Columna secundaria (psu, storage) -->
+              <div id="zona-secundaria">
+                <div class="slot slot-vacio" data-acepta="psu">
+                  <div class="slot-label">
+                    <strong>Compartimiento PSU</strong>
+                    <small>Generalmente en la parte inferior o superior.</small>
+                  </div>
+                  <div class="slot-estado"></div>
+                </div>
+                <div class="slot slot-vacio" data-acepta="storage">
+                  <div class="slot-label">
+                    <strong>Bandejas de Almacenamiento</strong>
+                    <small>Montaje para SSD/HDD.</small>
+                  </div>
+                  <div class="slot-estado"></div>
+                </div>
+                <div class="slot" style="opacity:0.45; border-style:dotted;">
+                  <div class="slot-label">
+                    <strong>Ventiladores / Flujo de aire</strong>
+                    <small>En la vida real también cuidarías la ventilación 🧊.</small>
+                  </div>
+                  <div class="slot-estado">💨 Decorativo</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel mensajes dinámicos -->
+        <div id="panel-mensajes">
+          <!-- Los mensajes se insertan desde JS -->
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const componentes = Array.from(document.querySelectorAll(".componente"));
+      const slots = Array.from(document.querySelectorAll(".slot[data-acepta]"));
+
+      const total = componentes.length;
+      let colocados = 0;
+
+      const contadorSpan = document.getElementById("estado-contador");
+      const barra = document.getElementById("progreso-barra");
+      const mensajePrincipal = document.getElementById("mensaje-principal");
+      const panelMensajes = document.getElementById("panel-mensajes");
+      const btnReiniciar = document.getElementById("btn-reiniciar");
+      const btnAleatorio = document.getElementById("btn-aleatorio");
+      const pasoNum = document.getElementById("paso-num");
+      const pasoTotal = document.getElementById("paso-total");
+
+      pasoTotal.textContent = total.toString();
+
+      const mensajesInicio = [
+        "Comencemos instalando la placa madre. ¡Es la base de todo!",
+        "Arrastra un componente hacia el gabinete para empezar.",
+        "Recuerda: no hace falta aplicar pasta térmica en este simulador 😄"
+      ];
+
+      const mensajesCorrecto = [
+        "Buen movimiento, así se arma una PC de ensueño 💫.",
+        "Perfecto, ese componente encaja como anillo al dedo.",
+        "¡Nice! Ya puedes imaginar los FPS subiendo 🎮.",
+        "Excelente, el cableado mental va quedando ordenado.",
+        "Vas a armar PC más rápido que muchas tiendas 😏."
+      ];
+
+      const mensajesError = [
+        "Ups, ese componente no va ahí. El gabinete protesta suavemente 😅.",
+        "No exactamente... intenta otro slot.",
+        "Ese lugar no es compatible con este componente. Prueba de nuevo.",
+        "El gabinete mira raro ese componente en esa zona 👀."
+      ];
+
+      const mensajesFinal = [
+        "PC lista para instalar el sistema operativo 🚀.",
+        "¡Ensamblaje completado! Hora de presumir tu build 😎.",
+        "Todo conectado correctamente. ¡Buen trabajo, técnico/a!",
+        "Tu simulación de armado ha sido un éxito ⭐."
+      ];
+
+      function elegirMensaje(lista) {
+        return lista[Math.floor(Math.random() * lista.length)];
+      }
+
+      function agregarMensaje(texto, tipo = "info") {
+        const div = document.createElement("div");
+        div.classList.add("mensaje");
+        if (tipo === "ok") div.classList.add("mensaje-ok");
+        if (tipo === "error") div.classList.add("mensaje-error");
+        if (tipo === "info") div.classList.add("mensaje-info");
+
+        const iconos = {
+          info: "💬",
+          ok: "✅",
+          error: "⚠️"
         };
 
-        let currentStep = 0;
-
-        const parts = document.querySelectorAll('.component');
-        const dropZone = document.getElementById('case-dropzone');
-        const statusMsg = document.getElementById('status-message');
-
-        // Función para REINICIAR
-        function resetSim() {
-            location.reload(); // Recarga la página para empezar de cero
-        }
-
-        // Configuración Drag & Drop
-        parts.forEach(part => {
-            part.addEventListener('dragstart', (e) => {
-                e.dataTransfer.setData('text/plain', e.target.id);
-                e.target.style.opacity = '0.5';
-            });
-            part.addEventListener('dragend', (e) => {
-                e.target.style.opacity = '1';
-            });
+        const icono = iconos[tipo] || "💬";
+        const ahora = new Date();
+        const hora = ahora.toLocaleTimeString("es-PE", {
+          hour: "2-digit",
+          minute: "2-digit"
         });
 
-        dropZone.addEventListener('dragover', (e) => {
+        div.innerHTML = `<strong>${icono}</strong> ${texto} <small>(${hora})</small>`;
+        panelMensajes.prepend(div);
+      }
+
+      function actualizarEstado() {
+        contadorSpan.textContent = `Componentes colocados: ${colocados} / ${total}`;
+        const porcentaje = (colocados / total) * 100;
+        barra.style.width = `${porcentaje}%`;
+
+        const siguiente = colocados + 1;
+        pasoNum.textContent = siguiente <= total ? siguiente.toString() : total.toString();
+
+        if (colocados === 0) {
+          mensajePrincipal.textContent = elegirMensaje(mensajesInicio);
+        } else if (colocados < total) {
+          mensajePrincipal.textContent = "Muy bien, sigue ensamblando la PC paso a paso.";
+        } else {
+          mensajePrincipal.textContent = "¡PC armada! Puedes reiniciar para practicar de nuevo.";
+        }
+      }
+
+      function marcarSlotVacio(slot, vacio = true) {
+        slot.classList.toggle("slot-vacio", vacio);
+        slot.classList.toggle("slot-lleno", !vacio);
+      }
+
+      function manejarDropCorrecto(slot, componente) {
+        if (slot.dataset.lleno === "true") {
+          agregarMensaje("Este slot ya tiene un componente instalado.", "error");
+          animarError(slot);
+          return;
+        }
+
+        slot.appendChild(componente);
+        componente.classList.add("colocado");
+        componente.draggable = false;
+        slot.dataset.lleno = "true";
+        marcarSlotVacio(slot, false);
+
+        colocados++;
+        agregarMensaje(`Has colocado correctamente: ${componente.querySelector("strong").textContent}.`, "ok");
+        actualizarEstado();
+
+        if (colocados === total) {
+          const textoFinal = elegirMensaje(mensajesFinal);
+          agregarMensaje(textoFinal, "ok");
+          document.getElementById("paso-actual").classList.add("badge-listo");
+        }
+      }
+
+      function animarError(slot) {
+        slot.classList.add("slot-error");
+        setTimeout(() => slot.classList.remove("slot-error"), 250);
+      }
+
+      function configurarDragAndDrop() {
+        componentes.forEach(componente => {
+          componente.addEventListener("dragstart", e => {
+            e.dataTransfer.setData("text/plain", componente.dataset.tipo);
+            e.dataTransfer.effectAllowed = "move";
+            componente.classList.add("dragging");
+          });
+
+          componente.addEventListener("dragend", () => {
+            componente.classList.remove("dragging");
+          });
+        });
+
+        slots.forEach(slot => {
+          slot.addEventListener("dragover", e => {
             e.preventDefault();
-            dropZone.classList.add('drag-over');
-        });
+            e.dataTransfer.dropEffect = "move";
+            if (slot.dataset.lleno !== "true") {
+              slot.classList.add("slot-hover");
+            }
+          });
 
-        dropZone.addEventListener('dragleave', (e) => {
-            dropZone.classList.remove('drag-over');
-        });
+          slot.addEventListener("dragleave", () => {
+            slot.classList.remove("slot-hover");
+          });
 
-        dropZone.addEventListener('drop', (e) => {
+          slot.addEventListener("drop", e => {
             e.preventDefault();
-            dropZone.classList.remove('drag-over');
+            slot.classList.remove("slot-hover");
 
-            const id = e.dataTransfer.getData('text');
-            const element = document.getElementById(id);
+            const tipo = e.dataTransfer.getData("text/plain");
+            const acepta = slot.dataset.acepta;
 
-            // Validar si el elemento existe (para evitar errores)
-            if (!element) return;
-
-            // Lógica de orden
-            if (id === assemblyOrder[currentStep]) {
-                // Correcto
-                installComponent(element, id);
-            } else {
-                // Error
-                const needed = componentNames[assemblyOrder[currentStep]];
-                const tried = componentNames[id];
-                statusMsg.innerHTML = `❌ Error: Intentas poner <b>${tried}</b>.<br>Primero necesitas instalar: <b>${needed}</b>.`;
-                statusMsg.style.borderLeftColor = "#e74c3c"; // Rojo
+            const componente = componentes.find(c => c.dataset.tipo === tipo && c.draggable === true);
+            if (!componente) {
+              agregarMensaje("Ese componente ya fue instalado o no es válido.", "error");
+              return;
             }
+
+            if (tipo === acepta) {
+              manejarDropCorrecto(slot, componente);
+            } else {
+              agregarMensaje(elegirMensaje(mensajesError), "error");
+              animarError(slot);
+            }
+          });
+        });
+      }
+
+      function reiniciarSimulacion() {
+        colocados = 0;
+
+        const lista = document.getElementById("lista-componentes");
+        componentes.forEach(c => {
+          c.classList.remove("colocado");
+          c.draggable = true;
+          lista.appendChild(c);
         });
 
-        function installComponent(element, id) {
-            // Clonar nodo para moverlo al gabinete
-            const clone = element.cloneNode(true);
-            clone.id = 'installed-' + id.replace('comp-', '');
-            clone.classList.add('installed');
-            clone.setAttribute('draggable', 'false');
-            
-            dropZone.appendChild(clone);
-            element.remove(); // Eliminar del menú lateral
+        slots.forEach(slot => {
+          if (slot.dataset.acepta) {
+            const hijos = Array.from(slot.children).filter(
+              el => el.classList && el.classList.contains("componente")
+            );
+            hijos.forEach(h => h.remove());
+            slot.dataset.lleno = "false";
+            marcarSlotVacio(slot, true);
+          }
+          slot.classList.remove("slot-hover", "slot-error");
+        });
 
-            currentStep++;
-            updateStatus();
+        document.getElementById("paso-actual").classList.remove("badge-listo");
+
+        panelMensajes.innerHTML = "";
+        agregarMensaje("Simulación reiniciada. Vuelve a ensamblar la PC desde cero.", "info");
+        actualizarEstado();
+      }
+
+      function sugerirSiguientePaso() {
+        if (colocados >= total) {
+          agregarMensaje("La PC ya está completa. Reinicia para volver a practicar 🔁.", "info");
+          return;
         }
 
-        function updateStatus() {
-            if (currentStep >= assemblyOrder.length) {
-                statusMsg.innerHTML = "🎉 <b>¡Excelente!</b> PC Ensamblada correctamente.";
-                statusMsg.style.borderLeftColor = "#2ecc71"; // Verde
-            } else {
-                const nextPart = componentNames[assemblyOrder[currentStep]];
-                statusMsg.innerHTML = `✅ Correcto. Siguiente paso: Instala <b>${nextPart}</b>.`;
-                statusMsg.style.borderLeftColor = "#00d2ff"; // Azul
-            }
-        }
-    </script>
+        const ordenRecomendado = ["motherboard", "cpu", "ram", "gpu", "psu", "storage"];
+        const yaColocados = slots
+          .filter(s => s.dataset.lleno === "true")
+          .map(s => s.dataset.acepta);
+        const pendientes = ordenRecomendado.filter(tipo => !yaColocados.includes(tipo));
+
+        const siguienteTipo = pendientes[0] || ordenRecomendado[colocados] || "motherboard";
+
+        const mapNombre = {
+          motherboard: "Placa madre",
+          cpu: "CPU / Procesador",
+          ram: "Memoria RAM",
+          gpu: "Tarjeta de video",
+          psu: "Fuente de poder",
+          storage: "Almacenamiento"
+        };
+
+        const nombre = mapNombre[siguienteTipo] || siguienteTipo;
+        agregarMensaje(`Sugerencia: ahora coloca <strong>${nombre}</strong> en su slot correspondiente.`, "info");
+      }
+
+      btnReiniciar.addEventListener("click", reiniciarSimulacion);
+      btnAleatorio.addEventListener("click", sugerirSiguientePaso);
+
+      configurarDragAndDrop();
+      reiniciarSimulacion(); // inicializa todo
+    })();
+  </script>
 </body>
 </html>
