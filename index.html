@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Simulador de Ensamblaje de PC</title>
+  <title>Simulador de Ensamblaje de PC (con imágenes)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     * {
@@ -17,7 +17,6 @@
       color: #e5e7eb;
       min-height: 100vh;
       display: flex;
-      align-items: stretch;
       justify-content: center;
     }
 
@@ -64,10 +63,10 @@
 
     #controls {
       display: flex;
-      align-items: center;
-      gap: 8px;
       flex-wrap: wrap;
+      gap: 8px;
       justify-content: flex-end;
+      align-items: center;
     }
 
     button {
@@ -97,7 +96,7 @@
     }
 
     button:active {
-      transform: translateY(0px) scale(0.98);
+      transform: translateY(0) scale(0.98);
       box-shadow: none;
     }
 
@@ -114,7 +113,7 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.08), transparent 55%);
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.1), transparent 55%);
     }
 
     #panel-der {
@@ -141,22 +140,47 @@
     }
 
     .componente {
-      background: rgba(15, 23, 42, 0.95);
+      background: rgba(15, 23, 42, 0.98);
       border-radius: 12px;
       padding: 8px 10px;
       font-size: 0.8rem;
       border: 1px solid rgba(148, 163, 184, 0.6);
       cursor: grab;
       display: flex;
-      flex-direction: column;
-      gap: 2px;
-      min-width: 120px;
+      align-items: center;
+      gap: 8px;
+      min-width: 150px;
       transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.12s ease, background 0.12s ease;
       user-select: none;
     }
 
+    .comp-img {
+      width: 42px;
+      height: 42px;
+      flex-shrink: 0;
+      border-radius: 10px;
+      overflow: hidden;
+      background: radial-gradient(circle at top, rgba(148, 163, 184, 0.28), rgba(15, 23, 42, 0.9));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .comp-img img {
+      width: 90%;
+      height: 90%;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7));
+    }
+
+    .comp-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
     .componente strong {
-      font-size: 0.8rem;
+      font-size: 0.82rem;
     }
 
     .componente small {
@@ -166,9 +190,9 @@
 
     .componente:hover {
       transform: translateY(-1px);
-      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.85);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.9);
       border-color: rgba(56, 189, 248, 0.7);
-      background: radial-gradient(circle at top, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.95));
+      background: radial-gradient(circle at top, rgba(56, 189, 248, 0.13), rgba(15, 23, 42, 0.98));
     }
 
     .componente.dragging {
@@ -179,8 +203,8 @@
 
     .componente.colocado {
       cursor: default;
+      opacity: 0.95;
       border-style: dashed;
-      opacity: 0.9;
     }
 
     #tips {
@@ -188,7 +212,7 @@
       padding: 8px 10px;
       border-radius: 10px;
       font-size: 0.75rem;
-      background: rgba(15, 23, 42, 0.9);
+      background: rgba(15, 23, 42, 0.95);
       border: 1px dashed rgba(148, 163, 184, 0.6);
       color: #9ca3af;
     }
@@ -263,7 +287,9 @@
     #gabinete-inner {
       border-radius: 16px;
       padding: 12px;
-      background: radial-gradient(circle at top right, rgba(52, 211, 153, 0.12), transparent 55%), radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.16), rgba(15, 23, 42, 1));
+      background:
+        radial-gradient(circle at top right, rgba(52, 211, 153, 0.1), transparent 55%),
+        radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.13), rgba(15, 23, 42, 1));
       border: 1px solid rgba(148, 163, 184, 0.4);
       display: grid;
       grid-template-columns: 1.4fr 1fr;
@@ -271,13 +297,17 @@
       min-height: 260px;
     }
 
+    /* Opcional: si pones un dibujo del gabinete, puedes usarlo como fondo:
+       #gabinete-inner { background-image: url("img/pc-case.png"); background-size: cover; background-position: center; }
+    */
+
     #zona-principal, #zona-secundaria {
       display: grid;
       gap: 8px;
     }
 
     #zona-principal {
-      grid-template-rows: repeat(4, minmax(40px, 1fr));
+      grid-template-rows: repeat(4, minmax(48px, 1fr));
     }
 
     #zona-secundaria {
@@ -288,14 +318,14 @@
       border-radius: 10px;
       padding: 6px 8px;
       border: 1px dashed rgba(148, 163, 184, 0.7);
-      background: rgba(15, 23, 42, 0.85);
+      background: rgba(15, 23, 42, 0.9);
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 6px;
       font-size: 0.78rem;
       transition: border 0.12s ease, background 0.12s ease, transform 0.08s ease;
-      min-height: 46px;
+      min-height: 54px;
     }
 
     .slot-label {
@@ -321,13 +351,13 @@
     }
 
     .slot-vacio .slot-estado::before {
-      content: "🕳️ Vacío";
+      content: "Arrastra aquí";
     }
 
     .slot-lleno {
       border-style: solid;
       border-color: rgba(34, 197, 94, 0.9);
-      background: radial-gradient(circle at top left, rgba(22, 163, 74, 0.16), rgba(15, 23, 42, 0.95));
+      background: radial-gradient(circle at top left, rgba(22, 163, 74, 0.18), rgba(15, 23, 42, 0.97));
     }
 
     .slot-lleno .slot-estado {
@@ -341,7 +371,7 @@
     .slot-hover {
       border-style: solid;
       border-color: rgba(59, 130, 246, 0.9);
-      background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.18), rgba(15, 23, 42, 0.95));
+      background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.2), rgba(15, 23, 42, 0.98));
       transform: translateY(-1px);
     }
 
@@ -362,15 +392,11 @@
       margin-top: 2px;
       border-radius: 12px;
       padding: 8px 10px;
-      background: rgba(15, 23, 42, 0.95);
+      background: rgba(15, 23, 42, 0.98);
       border: 1px solid rgba(75, 85, 99, 0.7);
       font-size: 0.76rem;
       max-height: 140px;
       overflow-y: auto;
-    }
-
-    #panel-mensajes strong {
-      color: #e5e7eb;
     }
 
     #panel-mensajes .mensaje {
@@ -458,7 +484,7 @@
     <header>
       <h1>
         🖥️ Simulador de Ensamblaje de PC
-        <span class="chip">Modo práctica</span>
+        <span class="chip">Modo imágenes</span>
       </h1>
       <div id="controls">
         <div id="paso-actual" class="badge-paso">
@@ -476,126 +502,163 @@
     </header>
 
     <section id="layout">
-      <!-- Panel izquierdo: lista de componentes -->
+      <!-- Panel izquierdo -->
       <aside id="panel-izq">
         <h2>Componentes</h2>
-        <p id="estado">
-          <span>Arrastra cada componente a su zona correcta del gabinete.</span>
+        <div id="estado">
+          <span>Arrastra cada componente al lugar correcto del gabinete.</span>
           <span id="estado-contador"></span>
           <div id="progreso-linea">
             <div id="progreso-barra"></div>
           </div>
           <span id="mensaje-principal"></span>
-        </p>
+        </div>
 
         <div id="lista-componentes">
           <div class="componente" draggable="true" data-tipo="motherboard">
-            <strong>Placa madre</strong>
-            <small>Cerebro principal donde se conecta todo.</small>
+            <div class="comp-img">
+              <img src="img/motherboard.png" alt="Placa madre" />
+            </div>
+            <div class="comp-text">
+              <strong>Placa madre</strong>
+              <small>Base donde se conecta todo.</small>
+            </div>
           </div>
+
           <div class="componente" draggable="true" data-tipo="cpu">
-            <strong>CPU / Procesador</strong>
-            <small>Ejecuta las instrucciones del sistema.</small>
+            <div class="comp-img">
+              <img src="img/cpu.png" alt="CPU" />
+            </div>
+            <div class="comp-text">
+              <strong>CPU / Procesador</strong>
+              <small>La mente de la PC.</small>
+            </div>
           </div>
+
           <div class="componente" draggable="true" data-tipo="ram">
-            <strong>Memoria RAM</strong>
-            <small>Memoria rápida para programas y juegos.</small>
+            <div class="comp-img">
+              <img src="img/ram.png" alt="RAM" />
+            </div>
+            <div class="comp-text">
+              <strong>Memoria RAM</strong>
+              <small>Memoria rápida de trabajo.</small>
+            </div>
           </div>
+
           <div class="componente" draggable="true" data-tipo="gpu">
-            <strong>Tarjeta de video (GPU)</strong>
-            <small>Se encarga de los gráficos y juegos.</small>
+            <div class="comp-img">
+              <img src="img/gpu.png" alt="Tarjeta de video" />
+            </div>
+            <div class="comp-text">
+              <strong>Tarjeta de video (GPU)</strong>
+              <small>Encargada de los gráficos.</small>
+            </div>
           </div>
+
           <div class="componente" draggable="true" data-tipo="psu">
-            <strong>Fuente de poder (PSU)</strong>
-            <small>Entrega energía a todos los componentes.</small>
+            <div class="comp-img">
+              <img src="img/psu.png" alt="Fuente de poder" />
+            </div>
+            <div class="comp-text">
+              <strong>Fuente de poder (PSU)</strong>
+              <small>Entrega energía a todo.</small>
+            </div>
           </div>
+
           <div class="componente" draggable="true" data-tipo="storage">
-            <strong>Almacenamiento (SSD/HDD)</strong>
-            <small>Donde se guarda tu sistema y archivos.</small>
+            <div class="comp-img">
+              <img src="img/storage.png" alt="Almacenamiento" />
+            </div>
+            <div class="comp-text">
+              <strong>Almacenamiento (SSD/HDD)</strong>
+              <small>Donde se guardan tus datos.</small>
+            </div>
           </div>
         </div>
 
         <div id="tips">
           <span class="icon">💡</span>
-          Tip: coloca primero la <strong>placa madre</strong>, luego el <strong>CPU</strong>, <strong>RAM</strong> y <strong>GPU</strong>.
-          Después instala la <strong>fuente de poder</strong> y el <strong>almacenamiento</strong>.
+          Tip: coloca primero la <strong>placa madre</strong>, luego <strong>CPU</strong>, <strong>RAM</strong> y <strong>GPU</strong>. Después instala la <strong>fuente de poder</strong> y el <strong>almacenamiento</strong>.
         </div>
       </aside>
 
-      <!-- Panel derecho: gabinete y mensajes -->
+      <!-- Panel derecho -->
       <section id="panel-der">
         <div id="gabinete-wrapper">
           <div id="gabinete-titulo">
             <h2>Gabinete</h2>
-            <small>Suéltalos en el slot correcto. Si te equivocas, el gabinete se quejará un poco 😅</small>
+            <small>Si sueltas el componente correcto, el slot se enciende en verde 💚.</small>
           </div>
 
           <div id="gabinete">
             <div id="gabinete-inner">
-              <!-- Columna principal (placa, cpu, ram, gpu) -->
+              <!-- Columna principal -->
               <div id="zona-principal">
                 <div class="slot slot-vacio" data-acepta="motherboard">
                   <div class="slot-label">
                     <strong>Zona Placa Madre</strong>
-                    <small>Aquí se atornilla la placa madre (ATX / mATX).</small>
+                    <small>Zona principal ATX / mATX.</small>
                   </div>
                   <div class="slot-estado"></div>
                 </div>
+
                 <div class="slot slot-vacio" data-acepta="cpu">
                   <div class="slot-label">
                     <strong>Socket CPU</strong>
-                    <small>Encaja el procesador sobre la placa.</small>
+                    <small>Sobre la placa madre.</small>
                   </div>
                   <div class="slot-estado"></div>
                 </div>
+
                 <div class="slot slot-vacio" data-acepta="ram">
                   <div class="slot-label">
                     <strong>Ranuras RAM</strong>
-                    <small>Coloca aquí los módulos de memoria.</small>
+                    <small>Slots DIMM para memoria.</small>
                   </div>
                   <div class="slot-estado"></div>
                 </div>
+
                 <div class="slot slot-vacio" data-acepta="gpu">
                   <div class="slot-label">
                     <strong>PCIe para GPU</strong>
-                    <small>Conecta la tarjeta de video.</small>
+                    <small>Conexión de la tarjeta de video.</small>
                   </div>
                   <div class="slot-estado"></div>
                 </div>
               </div>
 
-              <!-- Columna secundaria (psu, storage) -->
+              <!-- Columna secundaria -->
               <div id="zona-secundaria">
                 <div class="slot slot-vacio" data-acepta="psu">
                   <div class="slot-label">
                     <strong>Compartimiento PSU</strong>
-                    <small>Generalmente en la parte inferior o superior.</small>
+                    <small>Generalmente abajo o arriba.</small>
                   </div>
                   <div class="slot-estado"></div>
                 </div>
+
                 <div class="slot slot-vacio" data-acepta="storage">
                   <div class="slot-label">
                     <strong>Bandejas de Almacenamiento</strong>
-                    <small>Montaje para SSD/HDD.</small>
+                    <small>SSD / HDD.</small>
                   </div>
                   <div class="slot-estado"></div>
                 </div>
+
                 <div class="slot" style="opacity:0.45; border-style:dotted;">
                   <div class="slot-label">
-                    <strong>Ventiladores / Flujo de aire</strong>
-                    <small>En la vida real también cuidarías la ventilación 🧊.</small>
+                    <strong>Ventilación</strong>
+                    <small>Decorativo en el simulador 🧊.</small>
                   </div>
-                  <div class="slot-estado">💨 Decorativo</div>
+                  <div class="slot-estado">💨 Flujo de aire</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Panel mensajes dinámicos -->
-        <div id="panel-mensajes">
-          <!-- Los mensajes se insertan desde JS -->
-        </div>
+        <!-- Mensajes dinámicos -->
+        <div id="panel-mensajes"></div>
       </section>
     </section>
   </main>
@@ -622,21 +685,21 @@
       const mensajesInicio = [
         "Comencemos instalando la placa madre. ¡Es la base de todo!",
         "Arrastra un componente hacia el gabinete para empezar.",
-        "Recuerda: no hace falta aplicar pasta térmica en este simulador 😄"
+        "No necesitas pasta térmica en este simulador 😄"
       ];
 
       const mensajesCorrecto = [
         "Buen movimiento, así se arma una PC de ensueño 💫.",
-        "Perfecto, ese componente encaja como anillo al dedo.",
+        "Perfecto, ese componente encaja muy bien.",
         "¡Nice! Ya puedes imaginar los FPS subiendo 🎮.",
         "Excelente, el cableado mental va quedando ordenado.",
         "Vas a armar PC más rápido que muchas tiendas 😏."
       ];
 
       const mensajesError = [
-        "Ups, ese componente no va ahí. El gabinete protesta suavemente 😅.",
+        "Ups, ese componente no va ahí 😅.",
         "No exactamente... intenta otro slot.",
-        "Ese lugar no es compatible con este componente. Prueba de nuevo.",
+        "Ese lugar no es compatible con este componente.",
         "El gabinete mira raro ese componente en esa zona 👀."
       ];
 
@@ -678,15 +741,15 @@
       function actualizarEstado() {
         contadorSpan.textContent = `Componentes colocados: ${colocados} / ${total}`;
         const porcentaje = (colocados / total) * 100;
-        barra.style.width = `${porcentaje}%`;
+        barra.style.width = porcentaje + "%";
 
         const siguiente = colocados + 1;
-        pasoNum.textContent = siguiente <= total ? siguiente.toString() : total.toString();
+        pasoNum.textContent = (siguiente <= total ? siguiente : total).toString();
 
         if (colocados === 0) {
           mensajePrincipal.textContent = elegirMensaje(mensajesInicio);
         } else if (colocados < total) {
-          mensajePrincipal.textContent = "Muy bien, sigue ensamblando la PC paso a paso.";
+          mensajePrincipal.textContent = "Muy bien, sigue ensamblando la PC.";
         } else {
           mensajePrincipal.textContent = "¡PC armada! Puedes reiniciar para practicar de nuevo.";
         }
@@ -711,7 +774,10 @@
         marcarSlotVacio(slot, false);
 
         colocados++;
-        agregarMensaje(`Has colocado correctamente: ${componente.querySelector("strong").textContent}.`, "ok");
+        agregarMensaje(
+          `Has colocado correctamente: <strong>${componente.querySelector("strong").textContent}</strong>.`,
+          "ok"
+        );
         actualizarEstado();
 
         if (colocados === total) {
@@ -759,7 +825,9 @@
             const tipo = e.dataTransfer.getData("text/plain");
             const acepta = slot.dataset.acepta;
 
-            const componente = componentes.find(c => c.dataset.tipo === tipo && c.draggable === true);
+            const componente = componentes.find(
+              c => c.dataset.tipo === tipo && c.draggable === true
+            );
             if (!componente) {
               agregarMensaje("Ese componente ya fue instalado o no es válido.", "error");
               return;
@@ -828,14 +896,17 @@
         };
 
         const nombre = mapNombre[siguienteTipo] || siguienteTipo;
-        agregarMensaje(`Sugerencia: ahora coloca <strong>${nombre}</strong> en su slot correspondiente.`, "info");
+        agregarMensaje(
+          `Sugerencia: ahora coloca <strong>${nombre}</strong> en su slot correspondiente.`,
+          "info"
+        );
       }
 
       btnReiniciar.addEventListener("click", reiniciarSimulacion);
       btnAleatorio.addEventListener("click", sugerirSiguientePaso);
 
       configurarDragAndDrop();
-      reiniciarSimulacion(); // inicializa todo
+      reiniciarSimulacion();
     })();
   </script>
 </body>
